@@ -237,11 +237,11 @@ bool nodoEnTabla(Nodo nodo){
 			}
 		}
 	}
-
+	/*
 	if(!encontrado){
 		cout<<"Token: "<< *nodo->tokenName<<" no ha sido declarado en este scope.\n";
 		semanticERROR = true;
-	}
+	}*/
 	return encontrado;
 }
 
@@ -619,7 +619,7 @@ ________________________________________________________________________________
 %type <nodo> declaraciones_examen
 %type <nodo> asignaciones_examen
 %type <nodo> tipos_examen
-%type <nodo> metodo_definicion
+//%type <nodo> metodo_definicion
 %type <nodo> metodo_llamado
 %type <params> metodo_argumentos
 %type <params> lista_parametros
@@ -737,7 +737,37 @@ inicio:
 principal:
 	//mini_instruccion {$$ = $1;}
 	declaraciones_examen {$$ = $1;}
-	| metodo_definicion {$$ = $1;}
+	/*declaraciones_examen metodo_definicion principal
+	{
+		$2->HD = $3;
+		$3->HI = $2;
+		if($1 != nodoNulo){
+			Nodo i;
+			for(i = $1; i->HD != nodoNulo; i = i->HD){
+				//Iterates through the declaration Nodes.
+				//'til it finds the last one different to null.
+			}
+			$$ = $1;
+			i->HD = $2;
+			$2->HI = $$;
+		} else {
+			$$ = $2;
+		}
+	}
+	| declaraciones_examen metodo_definicion
+	{
+		$$ = $2;
+		if($1 != nodoNulo){
+			Nodo i;
+			for(i = $1; i->HD != nodoNulo; i = i->HD){
+				//Iterates through the declaration Nodes.
+				//'til it finds the last one different to null.
+			}
+			i->HD = $$;
+			$$->HI = $1;
+			$$ = $1;
+		}
+	}*/
 	;
 	
 mini_instruccion:
@@ -853,7 +883,7 @@ asignaciones_examen:
 	}
 	;
 */
-
+/*
 metodo_definicion:
 	INI metodo_llamado DOSP
 	mini_instruccion FIN
@@ -897,8 +927,9 @@ metodo_definicion:
 				pila.pop();
 			}
 	}
+	//| {$$ = nodoNulo;}
 	;
-
+*/
 metodo_llamado:
 	ID metodo_argumentos
 	{
@@ -908,11 +939,15 @@ metodo_llamado:
 	;
 	
 metodo_argumentos:
-	PARI lista_parametros PARD {$$ = $2;}
-	;	
+	PARI lista_parametros PARD 
+	{
+		$$ = $2;
+		
+	}
+	;			
 	
 lista_parametros:
-	tipos_examen COM lista_parametros
+	/*tipos_examen COM lista_parametros
 	{
 		$$ = new list<Caja*>();
 		$1->addToTable = true;
@@ -920,25 +955,41 @@ lista_parametros:
 		arbol.mergeLists($$,$3);
 		delete $3;
 	}
-	| tipos_examen
+	|*/ tipos_examen
 	{
 		$$ = new list<Caja*>();
 		$1->addToTable = true;
 		$$->push_back($1);
+		if ($1->tokenValue > 5){
+			printf("Semantic Error: Value is greater than 5: %d\n",$1->tokenValue);
+			semanticERROR = true;
+		}
+		if ($1->tokenValue < 1){
+			printf("Semantic Error: Value is less than 1: %d\n",$1->tokenValue);
+			semanticERROR = true;
+		}
 	}
 	;
 	
 tipos_examen:
-	ID 
+	/*ID 
 	{
 		$$ = new Caja(cuenta++, $1,NULL,NULL);
 		$$->tipo = entero;
 	}
-	| NUM 
+	| */NUM 
 	{
 		$$ = new Caja(cuenta++,NULL,NULL,NULL);
 		$$->tokenName = new string("*NULL*");
 		$$->tokenValue = $1;
+		$$->tipo = entero;
+	}
+	| MENOS NUM
+	{
+		int value = 0-$2;
+		$$ = new Caja(cuenta++,NULL,NULL,NULL);
+		$$->tokenName = new string("*NULL*");
+		$$->tokenValue = value;
 		$$->tipo = entero;
 	}
 	;
