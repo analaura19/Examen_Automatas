@@ -810,7 +810,7 @@ asignaciones_examen:
 		$$->asignacion->push_back($3);
 		// tipos se agrega desde su producción.
 	}
-	| ID IGUAL metodo_llamado
+	| ID IGUAL metodo_llamado  			/*1er Caso: ID = METODO*/
 	{
 		$$ = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
@@ -823,7 +823,7 @@ asignaciones_examen:
 		temp->tipo = $3->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
 	}
-	| ID COM ID IGUAL metodo_llamado
+	| ID COM ID IGUAL metodo_llamado	/*2do Caso: ID, ID = METODO*/
 	{
 		$$ = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, $4, NULL, NULL );
@@ -841,7 +841,7 @@ asignaciones_examen:
 		temp->tipo = $5->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
 	}
-	| ID COM ID COM ID IGUAL metodo_llamado
+	| ID COM ID COM ID IGUAL metodo_llamado		/*3er Caso: ID, ID, ID = METODO*/
 	{
 		$$ = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, $6, NULL, NULL );
@@ -862,6 +862,67 @@ asignaciones_examen:
 		temp = new Caja( cuenta++, $5, NULL, NULL );
 		temp->addToTable = true;
 		temp->tipo = $7->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+	}
+	| ID COM ID COM ID COM ID IGUAL metodo_llamado		/*4to Caso: ID, ID, ID, ID = METODO*/
+	{
+		$$ = new Caja(cuenta++, NULL, NULL, NULL);
+		Caja* temp = new Caja( cuenta++, $8, NULL, NULL );
+		$$->tokenName = new string("*asignacion*");
+		$$->asignacion = new list<Caja*>();
+		$$->asignacion->push_back($9);
+		$$->asignacion->push_front(temp);
+		temp = new Caja( cuenta++, $1, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $9->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+		
+		temp = new Caja( cuenta++, $3, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $9->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+		
+		temp = new Caja( cuenta++, $5, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $9->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+		
+		temp = new Caja( cuenta++, $7, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $9->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+	}
+	| ID COM ID COM ID COM ID COM ID IGUAL metodo_llamado		/*5to Caso: ID, ID, ID, ID, ID = METODO*/
+	{
+		$$ = new Caja(cuenta++, NULL, NULL, NULL);
+		Caja* temp = new Caja( cuenta++, $10, NULL, NULL );
+		$$->tokenName = new string("*asignacion*");
+		$$->asignacion = new list<Caja*>();
+		$$->asignacion->push_back($11);
+		$$->asignacion->push_front(temp);
+		temp = new Caja( cuenta++, $1, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $11->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+		
+		temp = new Caja( cuenta++, $3, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $11->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+		
+		temp = new Caja( cuenta++, $5, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $11->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+		
+		temp = new Caja( cuenta++, $7, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $11->tipo; //podria ser entero de una vez
+		$$->asignacion->push_front(temp);
+		
+		temp = new Caja( cuenta++, $9, NULL, NULL );
+		temp->addToTable = true;
+		temp->tipo = $11->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
 	}
 	;
