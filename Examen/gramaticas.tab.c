@@ -68,6 +68,7 @@
 #include <stdio.h>
 #include <string>
 #include <stack>
+#include <inttypes.h>
 
 #include "ArbolC++.h"
 using namespace std;
@@ -490,7 +491,7 @@ ________________________________________________________________________________
 
 
 /* Line 371 of yacc.c  */
-#line 494 "gramaticas.tab.c"
+#line 495 "gramaticas.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -521,7 +522,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
-#line 428 "gramaticas.cpp"
+#line 429 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
@@ -529,7 +530,7 @@ extern int yydebug;
 
 
 /* Line 387 of yacc.c  */
-#line 533 "gramaticas.tab.c"
+#line 534 "gramaticas.tab.c"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -559,7 +560,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 433 "gramaticas.cpp"
+#line 434 "gramaticas.cpp"
 
 	string* hilera;
 	int intVal;
@@ -569,7 +570,7 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 573 "gramaticas.tab.c"
+#line 574 "gramaticas.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -597,7 +598,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 601 "gramaticas.tab.c"
+#line 602 "gramaticas.tab.c"
 
 #ifdef short
 # undef short
@@ -893,8 +894,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   470,   470,   502,   506,   513,   517,   527,   537,   541,
-     545,   558,   576,   599,   627,   668,   676,   683,   700,   707
+       0,   471,   471,   503,   507,   514,   518,   528,   538,   542,
+     546,   570,   599,   633,   673,   723,   734,   741,   758,   765
 };
 #endif
 
@@ -1810,7 +1811,7 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 471 "gramaticas.cpp"
+#line 472 "gramaticas.cpp"
     {
 	  string* root = new std::string("Programa:");
 		arbol.ponerRaiz(cuenta,root);
@@ -1843,13 +1844,13 @@ yyreduce:
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 502 "gramaticas.cpp"
+#line 503 "gramaticas.cpp"
     {(yyval.nodo) = (yyvsp[(1) - (1)].nodo);}
     break;
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 507 "gramaticas.cpp"
+#line 508 "gramaticas.cpp"
     {
 		(yyval.nodo) = (yyvsp[(1) - (2)].nodo);
 		if((yyvsp[(2) - (2)].nodo) != nodoNulo){
@@ -1860,13 +1861,13 @@ yyreduce:
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 513 "gramaticas.cpp"
+#line 514 "gramaticas.cpp"
     {(yyval.nodo) = (yyvsp[(1) - (1)].nodo);}
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 518 "gramaticas.cpp"
+#line 519 "gramaticas.cpp"
     {
 		(yyval.nodo) = (yyvsp[(1) - (3)].nodo);
 		if((yyvsp[(3) - (3)].nodo) != nodoNulo){
@@ -1877,7 +1878,7 @@ yyreduce:
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 528 "gramaticas.cpp"
+#line 529 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, (yyvsp[(1) - (4)].hilera),(yyvsp[(4) - (4)].nodo),NULL);
 		(yyval.nodo)->params = new list<Caja*>();
@@ -1891,7 +1892,7 @@ yyreduce:
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 538 "gramaticas.cpp"
+#line 539 "gramaticas.cpp"
     {
 		(yyval.nodo) = (yyvsp[(2) - (2)].nodo);
 	}
@@ -1899,13 +1900,13 @@ yyreduce:
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 541 "gramaticas.cpp"
+#line 542 "gramaticas.cpp"
     {(yyval.nodo) = nodoNulo;}
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 546 "gramaticas.cpp"
+#line 547 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(2) - (3)].hilera), NULL, NULL );
@@ -1917,12 +1918,23 @@ yyreduce:
 		temp->addToTable = true;
 		temp->tipo = (yyvsp[(3) - (3)].nodo)->tipo; //podria ser entero de una vez
 		(yyval.nodo)->asignacion->push_front(temp);
+		
+		if((yyvsp[(3) - (3)].nodo)->params != 0x0){
+			if((yyvsp[(3) - (3)].nodo)->params->size() != 0)
+			{				
+				if ((*(yyvsp[(3) - (3)].nodo)->params->begin())->tokenValue != 1)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
 	}
     break;
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 559 "gramaticas.cpp"
+#line 571 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(4) - (5)].hilera), NULL, NULL );
@@ -1939,12 +1951,23 @@ yyreduce:
 		temp->addToTable = true;
 		temp->tipo = (yyvsp[(5) - (5)].nodo)->tipo; //podria ser entero de una vez
 		(yyval.nodo)->asignacion->push_front(temp);
+		
+		if((yyvsp[(5) - (5)].nodo)->params != 0x0){
+			if((yyvsp[(5) - (5)].nodo)->params->size() != 0)
+			{				
+				if ((*(yyvsp[(5) - (5)].nodo)->params->begin())->tokenValue != 2)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
 	}
     break;
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 577 "gramaticas.cpp"
+#line 600 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(6) - (7)].hilera), NULL, NULL );
@@ -1966,12 +1989,23 @@ yyreduce:
 		temp->addToTable = true;
 		temp->tipo = (yyvsp[(7) - (7)].nodo)->tipo; //podria ser entero de una vez
 		(yyval.nodo)->asignacion->push_front(temp);
+		
+		if((yyvsp[(7) - (7)].nodo)->params != 0x0){
+			if((yyvsp[(7) - (7)].nodo)->params->size() != 0)
+			{				
+				if ((*(yyvsp[(7) - (7)].nodo)->params->begin())->tokenValue != 3)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
 	}
     break;
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 600 "gramaticas.cpp"
+#line 634 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(8) - (9)].hilera), NULL, NULL );
@@ -1998,12 +2032,24 @@ yyreduce:
 		temp->addToTable = true;
 		temp->tipo = (yyvsp[(9) - (9)].nodo)->tipo; //podria ser entero de una vez
 		(yyval.nodo)->asignacion->push_front(temp);
+		
+		if((yyvsp[(9) - (9)].nodo)->params != 0x0){
+			if((yyvsp[(9) - (9)].nodo)->params->size() != 0)
+			{				
+				if ((*(yyvsp[(9) - (9)].nodo)->params->begin())->tokenValue != 4)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
+		
 	}
     break;
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 628 "gramaticas.cpp"
+#line 674 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(10) - (11)].hilera), NULL, NULL );
@@ -2036,25 +2082,37 @@ yyreduce:
 		temp->tipo = (yyvsp[(11) - (11)].nodo)->tipo; //podria ser entero de una vez
 		(yyval.nodo)->asignacion->push_front(temp);
 		
-		/*if($11->params != 5){
-			printf("Semantic Error: c mamo: %d\n",$11->params);
-			semanticERROR = true;
-		}*/
+		if((yyvsp[(11) - (11)].nodo)->params != 0x0){
+			if((yyvsp[(11) - (11)].nodo)->params->size() != 0)
+			{
+				//cout<<" Parametros: ";
+				//printList($11->params);
+				//printf("%d\n", $11->tokenValue);
+				if ((*(yyvsp[(11) - (11)].nodo)->params->begin())->tokenValue != 5)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
 	}
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 669 "gramaticas.cpp"
+#line 724 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++,(yyvsp[(1) - (2)].hilera),NULL,NULL);
 		(yyval.nodo)->params = (yyvsp[(2) - (2)].params);
+		/*if  ((*$2->begin())->tokenValue == 2){
+			printf("what what what");
+		}*/
 	}
     break;
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 677 "gramaticas.cpp"
+#line 735 "gramaticas.cpp"
     {
 		(yyval.params) = (yyvsp[(2) - (3)].params);		
 	}
@@ -2062,7 +2120,7 @@ yyreduce:
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 684 "gramaticas.cpp"
+#line 742 "gramaticas.cpp"
     {
 		(yyval.params) = new list<Caja*>();
 		(yyvsp[(1) - (1)].nodo)->addToTable = true;
@@ -2080,7 +2138,7 @@ yyreduce:
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 701 "gramaticas.cpp"
+#line 759 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++,NULL,NULL,NULL);
 		(yyval.nodo)->tokenName = new string("*NULL*");
@@ -2091,7 +2149,7 @@ yyreduce:
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 708 "gramaticas.cpp"
+#line 766 "gramaticas.cpp"
     {
 		int value = 0-(yyvsp[(2) - (2)].intVal);
 		(yyval.nodo) = new Caja(cuenta++,NULL,NULL,NULL);
@@ -2103,7 +2161,7 @@ yyreduce:
 
 
 /* Line 1792 of yacc.c  */
-#line 2107 "gramaticas.tab.c"
+#line 2165 "gramaticas.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2335,7 +2393,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 718 "gramaticas.cpp"
+#line 776 "gramaticas.cpp"
 
 int main(int argc, char** argv) {
 	if(argc > 1){

@@ -82,7 +82,7 @@ class Arbol{
 private:
     Nodo laRaiz;
     int cantNodos;
-	  list<Simbolo*>* symbolTable;
+	list<Simbolo*>* symbolTable;
     stack<Simbolo*> pila;//Para agregar los símbolos
     void vaciarRec(Nodo n); //Vaciar a partir de este nodo
 public:

@@ -1,4 +1,4 @@
-x,f,j,e,o = metodo(2);
+x,a,e = metodo(4);
 print x;
 print a;
 print e;

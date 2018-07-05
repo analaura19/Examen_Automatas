@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include <stack>
+#include <inttypes.h>
 
 #include "ArbolC++.h"
 using namespace std;
@@ -554,6 +555,17 @@ asignaciones_examen:
 		temp->addToTable = true;
 		temp->tipo = $3->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
+		
+		if($3->params != 0x0){
+			if($3->params->size() != 0)
+			{				
+				if ((*$3->params->begin())->tokenValue != 1)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
 	}
 	| ID COM ID IGUAL metodo_llamado	/*2do Caso: ID, ID = METODO*/
 	{
@@ -572,6 +584,17 @@ asignaciones_examen:
 		temp->addToTable = true;
 		temp->tipo = $5->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
+		
+		if($5->params != 0x0){
+			if($5->params->size() != 0)
+			{				
+				if ((*$5->params->begin())->tokenValue != 2)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
 	}
 	| ID COM ID COM ID IGUAL metodo_llamado		/*3er Caso: ID, ID, ID = METODO*/
 	{
@@ -595,6 +618,17 @@ asignaciones_examen:
 		temp->addToTable = true;
 		temp->tipo = $7->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
+		
+		if($7->params != 0x0){
+			if($7->params->size() != 0)
+			{				
+				if ((*$7->params->begin())->tokenValue != 3)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
 	}
 	| ID COM ID COM ID COM ID IGUAL metodo_llamado		/*4to Caso: ID, ID, ID, ID = METODO*/
 	{
@@ -623,6 +657,18 @@ asignaciones_examen:
 		temp->addToTable = true;
 		temp->tipo = $9->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
+		
+		if($9->params != 0x0){
+			if($9->params->size() != 0)
+			{				
+				if ((*$9->params->begin())->tokenValue != 4)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
+		
 	}
 	| ID COM ID COM ID COM ID COM ID IGUAL metodo_llamado		/*5to Caso: ID, ID, ID, ID, ID = METODO*/
 	{
@@ -657,10 +703,19 @@ asignaciones_examen:
 		temp->tipo = $11->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
 		
-		/*if($11->params != 5){
-			printf("Semantic Error: c mamo: %d\n",$11->params);
-			semanticERROR = true;
-		}*/
+		if($11->params != 0x0){
+			if($11->params->size() != 0)
+			{
+				//cout<<" Parametros: ";
+				//printList($11->params);
+				//printf("%d\n", $11->tokenValue);
+				if ((*$11->params->begin())->tokenValue != 5)
+				{
+					printf("Semantic Error: Cantidad de variables no coincide con el parametro");
+					semanticERROR = true;
+				}
+			}		
+		}
 	}
 	;
 
@@ -669,6 +724,9 @@ metodo_llamado:
 	{
 		$$ = new Caja(cuenta++,$1,NULL,NULL);
 		$$->params = $2;
+		/*if  ((*$2->begin())->tokenValue == 2){
+			printf("what what what");
+		}*/
 	}
 	;
 	
