@@ -1,5 +1,5 @@
-x,a,e = metodo(4);
-print x;
-print a;
-print e;
+ornitorrinco, orden_66, es42 = metodo(4);
+print ornitorrinco;
+print orden_66;
+print es42;
 print z;

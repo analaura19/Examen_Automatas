@@ -81,14 +81,11 @@ Arbol arbol;
 std::stack<Caja*> pila;
 int cuenta = 0;
 bool parametros = false;
-bool operaciones = false;
-bool comparaciones = false;
 bool semanticERROR = false;
 
 /*______________________________________________________________________________
 
 INICIO DE LOS METODOS DE IMPRESION.
-
 ________________________________________________________________________________
 */
 void printList(list<Nodo>* lst){
@@ -105,7 +102,6 @@ void printList(list<Nodo>* lst){
 		it--;
 	}
 }
-
 
 void imprimir_tabs(int cantidad_tabs)
 {
@@ -246,7 +242,7 @@ bool nodoEnRango(Nodo nodo, Simbolo* symbol){
 				if(*tmpNode->tokenName == *nodo->tokenName){
 					rst = true;
 				}
-				if(*tmpNode->tokenName == "*asignacion*" || *tmpNode->tokenName == "para"){
+				if(*tmpNode->tokenName == "*asignacion*"){
 					if(*(*tmpNode->asignacion->begin())->tokenName == *symbol->tokenName){
 						rst = true;
 					} else if (tmpParent->params!=0x0){
@@ -276,11 +272,6 @@ bool nodoEnTabla(Nodo nodo){
 		if(*(*it)->tokenName == *nodo->tokenName){
 			nodo->where = (*it);
 			encontrado = nodoEnRango(nodo, (*it));
-			if(operaciones && encontrado){
-				if((*it)->tipo != entero && (*it)->tipo != unknown){
-					cout<<"Error: "<<*(*it)->tokenName<<" no es tipo entero, por lo que no se puede usar en esta operacion.\n";
-				}
-			}
 		}
 	}
 	
@@ -290,103 +281,6 @@ bool nodoEnTabla(Nodo nodo){
 	}
 	return encontrado;
 }
-
-//CREO QUE FUNCA PERO DEBO ARREGLAR LOS PARAMETROS.
-void validezDeComparaciones(list<Caja*>* lst){
-	list<Caja*>::iterator it1, it2, it3, pivot;
-	int cnt1, cnt3;
-	bool comparisonError = false;
-	type tipo1;
-	type tipo3;
-	cnt1 = 0;
-	cnt3 = 0;
-	it1 = lst->begin();
-	it2 = it1;//It2 will be the compration operator
-	while(*(*it2)->tokenName != "==" && *(*it2)->tokenName != "<=" && *(*it2)->tokenName != ">=" &&
-				*(*it2)->tokenName != "<" && *(*it2)->tokenName != ">=" && it2 !=lst->end()){
-		it2++;
-		cnt1++;
-	}
-	if(it2 != lst->end()){
-		it3 = it2;
-		it3++;
-	}
-		pivot = it3;
-	do{
-		while(*(*pivot)->tokenName != "||" && *(*pivot)->tokenName != "&&" && pivot != lst->end()){
-			++pivot;
-			cnt3++;
-			if(pivot == lst->end()){//to get out of this without an arror.
-				break;
-			}
-		}
-		//==========================================================================================================
-		//comparisons go here
-		if(*(*it1)->tokenName == "*NULL*"){//if it1 is a number.
-			if(*(*it3)->tokenName != "*NULL*"){
-				if((*it3)->where != 0x0){//if it3 is a valid symbol.
-					if((*it3)->where->tipo != unknown && (*it3)->where->tipo != entero){
-						comparisonError = true;
-					}
-				}
-			}
-		} else {//if it1 has a symbol.
-			if(*(*it3)->tokenName != "*NULL*"){//comparison between two variables
-				if((*it3)->where != 0x0 && (*it3)->where != 0x0){//if both symbols are valid.
-					if((*it3)->where->tipo != (*it1)->where->tipo){
-						if((*it3)->where->tipo != unknown || (*it3)->where->tipo != unknown){//we can compare unknown with anything.
-							comparisonError = true;
-						}
-					}
-				}
-			} else {//it1 contains a number
-				if((*it1)->where != 0x0){//if it3 is a valid symbol.
-					if((*it1)->where->tipo != unknown && (*it1)->where->tipo != entero){
-						comparisonError = true;
-					}
-				}
-			}
-		}
-		if(comparisonError){
-			cout<<"No se pueden comparar ";
-			if(*(*it1)->tokenName == "*NULL*"){
-				cout<< (*it1)->tokenValue;
-			} else {
-				cout<< (*(*it1)->tokenName);
-			}
-			cout<<" y ";
-			if(*(*it3)->tokenName == "*NULL*"){
-				cout<< (*it3)->tokenValue;
-			} else {
-				cout<< *(*it3)->tokenName;
-			}
-			cout<<" ya que son distintos tipos.\n";
-			semanticERROR = true;
-		}
-		comparisonError = false;
-		//==========================================================================================================
-		cnt3 = 0;
-		cnt1 = 0;
-		if(pivot != lst->end()){//There are || or &&.
-			it1 = pivot;
-			it1++;
-			it2 = it1;
-			while(*(*it2)->tokenName != "==" && *(*it2)->tokenName != "<=" && *(*it2)->tokenName != ">=" &&
-						*(*it2)->tokenName != "<" && *(*it2)->tokenName != ">=" && it2 !=lst->end()){
-				it2++;
-				cnt1++;
-			}
-				if(it2 != lst->end()){
-				it3 = it2;
-				it3++;
-			}
-			pivot = it3;
-		} else {
-			break;
-		}
-	} while(pivot != lst->end());
-}
-
 //******************************************************************************************
 
 //******************************************************************************************
@@ -402,65 +296,40 @@ void buscarEnTablaListasDeNodos(Nodo nodo){
 		}
 	}
 
-	if(nodo->comparacion != 0x0){
-		if(nodo->comparacion->size() != 0){
-			list<Nodo>::iterator it = nodo->comparacion->begin();
-				while(it != nodo->comparacion->end()){
+	if(nodo->asignacion != 0x0){
+		if(nodo->asignacion->size() != 0){
+			list<Nodo>::iterator it = nodo->asignacion->begin();
+				it++;
+				it++;
+				while(it != nodo->asignacion->end()){
 					if(!caracterEspecial((*it)->tokenName)){
 						nodoEnTabla(*it);
 					}
 					it++;
 				}
-				validezDeComparaciones(nodo->comparacion);
-			}
 		}
-		if(nodo->asignacion != 0x0){
-			if(nodo->asignacion->size() != 0){
-				list<Nodo>::iterator it = nodo->asignacion->begin();
-					it++;
-					it++;
-					while(it != nodo->asignacion->end()){
-						if(!caracterEspecial((*it)->tokenName)){
-							nodoEnTabla(*it);
-						}
-						it++;
-					}
-				}
-			}
-}
-
-void printType(type tipo){
-		switch(tipo){
-			case hilera: cout<<"hilera ";
-										break;
-			case entero: cout<<"entero ";
-										break;
-			case booleano: cout<<"booleano ";
-										break;
-		}
+	}
 }
 
 void semanticAnalisisPreORecur(Arbol& arbol, Nodo nodo, int nivel)
 {
 	if(nivel > 0){
 		if(*nodo->tokenName != "*NULL*"){
-			if(*nodo->tokenName != "print" && *nodo->tokenName != "*asignacion*")
-					{
-						nodoEnTabla(nodo);
-					}
-
-						if(nodo->params != 0x0){
-							if(nodo->params->size() != 0){
-								for(list<Nodo>::iterator it = nodo->params->begin(); it != nodo->params->end(); it++){
-										if(!caracterEspecial((*it)->tokenName)){
-											nodoEnTabla(*it);
-											buscarEnTablaListasDeNodos(*it);
-										}
-									}
-								}
+			if(*nodo->tokenName != "print" && *nodo->tokenName != "*asignacion*"){
+					nodoEnTabla(nodo);
+			}
+			if(nodo->params != 0x0){
+				if(nodo->params->size() != 0){
+					for(list<Nodo>::iterator it = nodo->params->begin(); it != nodo->params->end(); it++){
+							if(!caracterEspecial((*it)->tokenName)){
+								nodoEnTabla(*it);
+								buscarEnTablaListasDeNodos(*it);
 							}
+					}
+				}
 			}
 		}
+	}
 	Nodo hijo = arbol.hijoMasIzq(nodo);
 	if( hijo != nodoNulo ){
 		semanticAnalisisPreORecur(arbol, hijo,nivel+1);
@@ -491,7 +360,7 @@ ________________________________________________________________________________
 
 
 /* Line 371 of yacc.c  */
-#line 495 "gramaticas.tab.c"
+#line 364 "gramaticas.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -522,7 +391,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
-#line 429 "gramaticas.cpp"
+#line 298 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
@@ -530,7 +399,7 @@ extern int yydebug;
 
 
 /* Line 387 of yacc.c  */
-#line 534 "gramaticas.tab.c"
+#line 403 "gramaticas.tab.c"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -560,7 +429,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 434 "gramaticas.cpp"
+#line 303 "gramaticas.cpp"
 
 	string* hilera;
 	int intVal;
@@ -570,7 +439,7 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 574 "gramaticas.tab.c"
+#line 443 "gramaticas.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -598,7 +467,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 602 "gramaticas.tab.c"
+#line 471 "gramaticas.tab.c"
 
 #ifdef short
 # undef short
@@ -894,8 +763,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   471,   471,   503,   507,   514,   518,   528,   538,   542,
-     546,   570,   599,   633,   673,   723,   734,   741,   758,   765
+       0,   340,   340,   371,   375,   382,   386,   396,   406,   410,
+     414,   438,   467,   501,   541,   591,   599,   606,   623,   630
 };
 #endif
 
@@ -1811,7 +1680,7 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 472 "gramaticas.cpp"
+#line 341 "gramaticas.cpp"
     {
 	  string* root = new std::string("Programa:");
 		arbol.ponerRaiz(cuenta,root);
@@ -1834,7 +1703,6 @@ yyreduce:
 			}
 		}
 		arbol.fillTable();
-		//printTree();
 		semanticAnalisisPreO(arbol);
 		if(semanticERROR){
 			exit(0);
@@ -1844,13 +1712,13 @@ yyreduce:
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 503 "gramaticas.cpp"
+#line 371 "gramaticas.cpp"
     {(yyval.nodo) = (yyvsp[(1) - (1)].nodo);}
     break;
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 508 "gramaticas.cpp"
+#line 376 "gramaticas.cpp"
     {
 		(yyval.nodo) = (yyvsp[(1) - (2)].nodo);
 		if((yyvsp[(2) - (2)].nodo) != nodoNulo){
@@ -1861,13 +1729,13 @@ yyreduce:
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 514 "gramaticas.cpp"
+#line 382 "gramaticas.cpp"
     {(yyval.nodo) = (yyvsp[(1) - (1)].nodo);}
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 519 "gramaticas.cpp"
+#line 387 "gramaticas.cpp"
     {
 		(yyval.nodo) = (yyvsp[(1) - (3)].nodo);
 		if((yyvsp[(3) - (3)].nodo) != nodoNulo){
@@ -1878,7 +1746,7 @@ yyreduce:
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 529 "gramaticas.cpp"
+#line 397 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, (yyvsp[(1) - (4)].hilera),(yyvsp[(4) - (4)].nodo),NULL);
 		(yyval.nodo)->params = new list<Caja*>();
@@ -1892,7 +1760,7 @@ yyreduce:
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 539 "gramaticas.cpp"
+#line 407 "gramaticas.cpp"
     {
 		(yyval.nodo) = (yyvsp[(2) - (2)].nodo);
 	}
@@ -1900,13 +1768,13 @@ yyreduce:
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 542 "gramaticas.cpp"
+#line 410 "gramaticas.cpp"
     {(yyval.nodo) = nodoNulo;}
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 547 "gramaticas.cpp"
+#line 415 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(2) - (3)].hilera), NULL, NULL );
@@ -1934,7 +1802,7 @@ yyreduce:
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 571 "gramaticas.cpp"
+#line 439 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(4) - (5)].hilera), NULL, NULL );
@@ -1967,7 +1835,7 @@ yyreduce:
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 600 "gramaticas.cpp"
+#line 468 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(6) - (7)].hilera), NULL, NULL );
@@ -2005,7 +1873,7 @@ yyreduce:
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 634 "gramaticas.cpp"
+#line 502 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(8) - (9)].hilera), NULL, NULL );
@@ -2049,7 +1917,7 @@ yyreduce:
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 674 "gramaticas.cpp"
+#line 542 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(10) - (11)].hilera), NULL, NULL );
@@ -2100,19 +1968,16 @@ yyreduce:
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 724 "gramaticas.cpp"
+#line 592 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++,(yyvsp[(1) - (2)].hilera),NULL,NULL);
 		(yyval.nodo)->params = (yyvsp[(2) - (2)].params);
-		/*if  ((*$2->begin())->tokenValue == 2){
-			printf("what what what");
-		}*/
 	}
     break;
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 735 "gramaticas.cpp"
+#line 600 "gramaticas.cpp"
     {
 		(yyval.params) = (yyvsp[(2) - (3)].params);		
 	}
@@ -2120,7 +1985,7 @@ yyreduce:
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 742 "gramaticas.cpp"
+#line 607 "gramaticas.cpp"
     {
 		(yyval.params) = new list<Caja*>();
 		(yyvsp[(1) - (1)].nodo)->addToTable = true;
@@ -2138,7 +2003,7 @@ yyreduce:
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 759 "gramaticas.cpp"
+#line 624 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++,NULL,NULL,NULL);
 		(yyval.nodo)->tokenName = new string("*NULL*");
@@ -2149,7 +2014,7 @@ yyreduce:
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 766 "gramaticas.cpp"
+#line 631 "gramaticas.cpp"
     {
 		int value = 0-(yyvsp[(2) - (2)].intVal);
 		(yyval.nodo) = new Caja(cuenta++,NULL,NULL,NULL);
@@ -2161,7 +2026,7 @@ yyreduce:
 
 
 /* Line 1792 of yacc.c  */
-#line 2165 "gramaticas.tab.c"
+#line 2030 "gramaticas.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2393,7 +2258,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 776 "gramaticas.cpp"
+#line 641 "gramaticas.cpp"
 
 int main(int argc, char** argv) {
 	if(argc > 1){

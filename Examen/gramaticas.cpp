@@ -15,14 +15,11 @@ Arbol arbol;
 std::stack<Caja*> pila;
 int cuenta = 0;
 bool parametros = false;
-bool operaciones = false;
-bool comparaciones = false;
 bool semanticERROR = false;
 
 /*______________________________________________________________________________
 
 INICIO DE LOS METODOS DE IMPRESION.
-
 ________________________________________________________________________________
 */
 void printList(list<Nodo>* lst){
@@ -39,7 +36,6 @@ void printList(list<Nodo>* lst){
 		it--;
 	}
 }
-
 
 void imprimir_tabs(int cantidad_tabs)
 {
@@ -180,7 +176,7 @@ bool nodoEnRango(Nodo nodo, Simbolo* symbol){
 				if(*tmpNode->tokenName == *nodo->tokenName){
 					rst = true;
 				}
-				if(*tmpNode->tokenName == "*asignacion*" || *tmpNode->tokenName == "para"){
+				if(*tmpNode->tokenName == "*asignacion*"){
 					if(*(*tmpNode->asignacion->begin())->tokenName == *symbol->tokenName){
 						rst = true;
 					} else if (tmpParent->params!=0x0){
@@ -210,11 +206,6 @@ bool nodoEnTabla(Nodo nodo){
 		if(*(*it)->tokenName == *nodo->tokenName){
 			nodo->where = (*it);
 			encontrado = nodoEnRango(nodo, (*it));
-			if(operaciones && encontrado){
-				if((*it)->tipo != entero && (*it)->tipo != unknown){
-					cout<<"Error: "<<*(*it)->tokenName<<" no es tipo entero, por lo que no se puede usar en esta operacion.\n";
-				}
-			}
 		}
 	}
 	
@@ -224,103 +215,6 @@ bool nodoEnTabla(Nodo nodo){
 	}
 	return encontrado;
 }
-
-//CREO QUE FUNCA PERO DEBO ARREGLAR LOS PARAMETROS.
-void validezDeComparaciones(list<Caja*>* lst){
-	list<Caja*>::iterator it1, it2, it3, pivot;
-	int cnt1, cnt3;
-	bool comparisonError = false;
-	type tipo1;
-	type tipo3;
-	cnt1 = 0;
-	cnt3 = 0;
-	it1 = lst->begin();
-	it2 = it1;//It2 will be the compration operator
-	while(*(*it2)->tokenName != "==" && *(*it2)->tokenName != "<=" && *(*it2)->tokenName != ">=" &&
-				*(*it2)->tokenName != "<" && *(*it2)->tokenName != ">=" && it2 !=lst->end()){
-		it2++;
-		cnt1++;
-	}
-	if(it2 != lst->end()){
-		it3 = it2;
-		it3++;
-	}
-		pivot = it3;
-	do{
-		while(*(*pivot)->tokenName != "||" && *(*pivot)->tokenName != "&&" && pivot != lst->end()){
-			++pivot;
-			cnt3++;
-			if(pivot == lst->end()){//to get out of this without an arror.
-				break;
-			}
-		}
-		//==========================================================================================================
-		//comparisons go here
-		if(*(*it1)->tokenName == "*NULL*"){//if it1 is a number.
-			if(*(*it3)->tokenName != "*NULL*"){
-				if((*it3)->where != 0x0){//if it3 is a valid symbol.
-					if((*it3)->where->tipo != unknown && (*it3)->where->tipo != entero){
-						comparisonError = true;
-					}
-				}
-			}
-		} else {//if it1 has a symbol.
-			if(*(*it3)->tokenName != "*NULL*"){//comparison between two variables
-				if((*it3)->where != 0x0 && (*it3)->where != 0x0){//if both symbols are valid.
-					if((*it3)->where->tipo != (*it1)->where->tipo){
-						if((*it3)->where->tipo != unknown || (*it3)->where->tipo != unknown){//we can compare unknown with anything.
-							comparisonError = true;
-						}
-					}
-				}
-			} else {//it1 contains a number
-				if((*it1)->where != 0x0){//if it3 is a valid symbol.
-					if((*it1)->where->tipo != unknown && (*it1)->where->tipo != entero){
-						comparisonError = true;
-					}
-				}
-			}
-		}
-		if(comparisonError){
-			cout<<"No se pueden comparar ";
-			if(*(*it1)->tokenName == "*NULL*"){
-				cout<< (*it1)->tokenValue;
-			} else {
-				cout<< (*(*it1)->tokenName);
-			}
-			cout<<" y ";
-			if(*(*it3)->tokenName == "*NULL*"){
-				cout<< (*it3)->tokenValue;
-			} else {
-				cout<< *(*it3)->tokenName;
-			}
-			cout<<" ya que son distintos tipos.\n";
-			semanticERROR = true;
-		}
-		comparisonError = false;
-		//==========================================================================================================
-		cnt3 = 0;
-		cnt1 = 0;
-		if(pivot != lst->end()){//There are || or &&.
-			it1 = pivot;
-			it1++;
-			it2 = it1;
-			while(*(*it2)->tokenName != "==" && *(*it2)->tokenName != "<=" && *(*it2)->tokenName != ">=" &&
-						*(*it2)->tokenName != "<" && *(*it2)->tokenName != ">=" && it2 !=lst->end()){
-				it2++;
-				cnt1++;
-			}
-				if(it2 != lst->end()){
-				it3 = it2;
-				it3++;
-			}
-			pivot = it3;
-		} else {
-			break;
-		}
-	} while(pivot != lst->end());
-}
-
 //******************************************************************************************
 
 //******************************************************************************************
@@ -336,65 +230,40 @@ void buscarEnTablaListasDeNodos(Nodo nodo){
 		}
 	}
 
-	if(nodo->comparacion != 0x0){
-		if(nodo->comparacion->size() != 0){
-			list<Nodo>::iterator it = nodo->comparacion->begin();
-				while(it != nodo->comparacion->end()){
+	if(nodo->asignacion != 0x0){
+		if(nodo->asignacion->size() != 0){
+			list<Nodo>::iterator it = nodo->asignacion->begin();
+				it++;
+				it++;
+				while(it != nodo->asignacion->end()){
 					if(!caracterEspecial((*it)->tokenName)){
 						nodoEnTabla(*it);
 					}
 					it++;
 				}
-				validezDeComparaciones(nodo->comparacion);
-			}
 		}
-		if(nodo->asignacion != 0x0){
-			if(nodo->asignacion->size() != 0){
-				list<Nodo>::iterator it = nodo->asignacion->begin();
-					it++;
-					it++;
-					while(it != nodo->asignacion->end()){
-						if(!caracterEspecial((*it)->tokenName)){
-							nodoEnTabla(*it);
-						}
-						it++;
-					}
-				}
-			}
-}
-
-void printType(type tipo){
-		switch(tipo){
-			case hilera: cout<<"hilera ";
-										break;
-			case entero: cout<<"entero ";
-										break;
-			case booleano: cout<<"booleano ";
-										break;
-		}
+	}
 }
 
 void semanticAnalisisPreORecur(Arbol& arbol, Nodo nodo, int nivel)
 {
 	if(nivel > 0){
 		if(*nodo->tokenName != "*NULL*"){
-			if(*nodo->tokenName != "print" && *nodo->tokenName != "*asignacion*")
-					{
-						nodoEnTabla(nodo);
-					}
-
-						if(nodo->params != 0x0){
-							if(nodo->params->size() != 0){
-								for(list<Nodo>::iterator it = nodo->params->begin(); it != nodo->params->end(); it++){
-										if(!caracterEspecial((*it)->tokenName)){
-											nodoEnTabla(*it);
-											buscarEnTablaListasDeNodos(*it);
-										}
-									}
-								}
+			if(*nodo->tokenName != "print" && *nodo->tokenName != "*asignacion*"){
+					nodoEnTabla(nodo);
+			}
+			if(nodo->params != 0x0){
+				if(nodo->params->size() != 0){
+					for(list<Nodo>::iterator it = nodo->params->begin(); it != nodo->params->end(); it++){
+							if(!caracterEspecial((*it)->tokenName)){
+								nodoEnTabla(*it);
+								buscarEnTablaListasDeNodos(*it);
 							}
+					}
+				}
 			}
 		}
+	}
 	Nodo hijo = arbol.hijoMasIzq(nodo);
 	if( hijo != nodoNulo ){
 		semanticAnalisisPreORecur(arbol, hijo,nivel+1);
@@ -491,7 +360,6 @@ super:
 			}
 		}
 		arbol.fillTable();
-		//printTree();
 		semanticAnalisisPreO(arbol);
 		if(semanticERROR){
 			exit(0);
@@ -724,9 +592,6 @@ metodo_llamado:
 	{
 		$$ = new Caja(cuenta++,$1,NULL,NULL);
 		$$->params = $2;
-		/*if  ((*$2->begin())->tokenValue == 2){
-			printf("what what what");
-		}*/
 	}
 	;
 	

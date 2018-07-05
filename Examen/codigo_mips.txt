@@ -1,0 +1,19 @@
+.data
+	str: 	hilera: .asciiz "\n Digite un número: "
+.text
+
+main:
+
+loop:
+	li $v0, 4			#$system call code for print_str  
+    la  $a0, str    	#$address of string to print
+    syscall    			#print the string                        
+	
+	li $v0, 5			#system call code for read int
+	syscall			
+	move $t0, $v0
+	
+	blt $t0, $t1, loop 	#jump to loop if $t0 < $t1
+	
+	li $v0, 1			#system call for print_int
+	syscall

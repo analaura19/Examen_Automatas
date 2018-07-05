@@ -41,7 +41,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2058 of yacc.c  */
-#line 429 "gramaticas.cpp"
+#line 298 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
@@ -79,7 +79,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 434 "gramaticas.cpp"
+#line 303 "gramaticas.cpp"
 
 	string* hilera;
 	int intVal;
