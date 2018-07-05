@@ -82,31 +82,10 @@ void listPreORecur(Arbol& arbol, Nodo nodo, int cantidad_tabs)
 		}
 		parametros = false;
 	}
-
-	if(nodo->array != 0x0){
-		if(nodo->array->size() != 0){
-			cout<<" Tamaño Arreglo: ";
-			printList(nodo->array);
-		}
-		parametros = false;
-	}
-
 	if(nodo->asignacion != 0x0){
 		if(nodo->asignacion->size() != 0){
 			cout<<" Asignacion: ";
 			printList(nodo->asignacion);
-		}
-	}
-	if(nodo->comparacion != 0x0){
-		if(nodo->comparacion->size() != 0){
-			cout<<" Comparacion: ";
-			printList(nodo->comparacion);
-		}
-	}
-	if(nodo->operaciones != 0x0){
-		if(nodo->operaciones->size() != 0){
-			cout<<" Operaciones: ";
-			printList(nodo->operaciones);
 		}
 	}
 	cout<<"\n";
@@ -147,8 +126,8 @@ ________________________________________________________________________________
 bool caracterEspecial(string* tokenName){
 		if(*tokenName == "+" || *tokenName == "-" || *tokenName == "/" || *tokenName == "*" || *tokenName == "%" ||
 			 *tokenName == "==" || *tokenName == ">" || *tokenName == "<" || *tokenName == "<=" || *tokenName == ">=" ||
-			 *tokenName == "||" || *tokenName == "&&" || *tokenName == "=" || *tokenName == "*NULL*" || (*tokenName)[0] == '\"'
-		 || *tokenName == "verdadero" || *tokenName == "falso" || *tokenName == "nulo"){
+			 *tokenName == "||" || *tokenName == "&&" || *tokenName == "=" || *tokenName == "*NULL*" || (*tokenName)[0] == '\"'|| 
+			 *tokenName == "nulo"){
 			 return true;
 		 }
 		return false;
@@ -237,11 +216,11 @@ bool nodoEnTabla(Nodo nodo){
 			}
 		}
 	}
-	/*
+	
 	if(!encontrado){
-		cout<<"Token: "<< *nodo->tokenName<<" no ha sido declarado en este scope.\n";
+		cout<<"Semantic Error -> Token: "<< *nodo->tokenName<<" no ha sido declarado en este scope.\n";
 		semanticERROR = true;
-	}*/
+	}
 	return encontrado;
 }
 
@@ -368,21 +347,6 @@ void buscarEnTablaListasDeNodos(Nodo nodo){
 				validezDeComparaciones(nodo->comparacion);
 			}
 		}
-
-		if(nodo->operaciones != 0x0){
-			if(nodo->operaciones->size() != 0){
-				list<Nodo>::iterator it = nodo->operaciones->begin();
-					while(it != nodo->operaciones->end()){
-						if(!caracterEspecial((*it)->tokenName)){
-							operaciones = true;
-							nodoEnTabla(*it);
-							operaciones = false;
-						}
-						it++;
-					}
-				}
-		}
-
 		if(nodo->asignacion != 0x0){
 			if(nodo->asignacion->size() != 0){
 				list<Nodo>::iterator it = nodo->asignacion->begin();
@@ -396,23 +360,6 @@ void buscarEnTablaListasDeNodos(Nodo nodo){
 					}
 				}
 			}
-
-			if(nodo->array != 0x0){
-				if(nodo->array->size() != 0){
-					list<Nodo>::iterator it = nodo->array->begin();
-						it++;
-						it++;
-						while(it != nodo->array->end()){
-							if(!caracterEspecial((*it)->tokenName)){
-								operaciones = true;
-								nodoEnTabla(*it);
-								operaciones = false;
-							}
-							it++;
-						}
-					}
-				}
-
 }
 
 void printType(type tipo){
@@ -430,10 +377,7 @@ void semanticAnalisisPreORecur(Arbol& arbol, Nodo nodo, int nivel)
 {
 	if(nivel > 0){
 		if(*nodo->tokenName != "*NULL*"){
-			if(*nodo->tokenName != "si" && *nodo->tokenName != "sino" &&
-					*nodo->tokenName != "entrada" && *nodo->tokenName != "salida" &&
-					*nodo->tokenName != "para" && *nodo->tokenName != "mientras" &&
-					*nodo->tokenName != "*asignacion*" && *nodo->tokenName != "ret")
+			if(*nodo->tokenName != "print" && *nodo->tokenName != "*asignacion*")
 					{
 						nodoEnTabla(nodo);
 					}
@@ -448,105 +392,6 @@ void semanticAnalisisPreORecur(Arbol& arbol, Nodo nodo, int nivel)
 									}
 								}
 							}
-
-							if(nodo->comparacion != 0x0){
-								if(nodo->comparacion->size() != 0){
-									list<Nodo>::iterator it = nodo->comparacion->begin();
-										while(it != nodo->comparacion->end()){
-											if(!caracterEspecial((*it)->tokenName)){
-												nodoEnTabla(*it);
-												buscarEnTablaListasDeNodos(*it);
-											}
-											it++;
-										}
-										validezDeComparaciones(nodo->comparacion);
-									}
-								}
-
-								if(nodo->operaciones != 0x0){
-									if(nodo->operaciones->size() != 0){
-										list<Nodo>::iterator it = nodo->operaciones->begin();
-											while(it != nodo->operaciones->end()){
-												if(!caracterEspecial((*it)->tokenName)){
-													operaciones = true;
-													nodoEnTabla(*it);
-												  operaciones = false;
-													buscarEnTablaListasDeNodos(*it);
-												}
-												it++;
-											}
-										}
-								}
-
-								if(nodo->asignacion != 0x0){
-									if(nodo->asignacion->size() != 0){
-										list<Nodo>::iterator it = nodo->asignacion->begin();
-											it++;
-											it++;
-											while(it != nodo->asignacion->end()){
-												if(!caracterEspecial((*it)->tokenName)){
-													nodoEnTabla(*it);
-													buscarEnTablaListasDeNodos(*it);
-												}
-												it++;
-											}
-										}
-									}
-
-									if(nodo->array != 0x0){
-										if(nodo->array->size() != 0){
-											list<Nodo>::iterator it = nodo->array->begin();
-												it++;
-												it++;
-												while(it != nodo->array->end()){
-													if(!caracterEspecial((*it)->tokenName)){
-														operaciones = true;
-														nodoEnTabla(*it);
-														operaciones = false;
-														buscarEnTablaListasDeNodos(*it);
-													}
-													it++;
-												}
-											}
-										}
-
-										//Se verifica que el valor de retorno sea real.
-										if(*nodo->tokenName == "ret"){
-												Nodo padre = retType(nodo);
-												if(padre->where->tipo == unknown){//Actualiza el tipo del método.
-													if(nodo->tipo != unknown){
-														padre->tipo = nodo->tipo;
-														padre->where->tipo = nodo->tipo;
-													} else {
-														padre->tipo = (*nodo->params->begin())->where->tipo;
-														padre->where->tipo = (*nodo->params->begin())->where->tipo;
-													}
-												}
-											if(nodo->tipo == unknown){//When a variable is being returned.
-												if((*nodo->params->begin())->where != 0x0){//If the symbol exists in the table.
-													if(padre->tipo != (*nodo->params->begin())->where->tipo && padre->tipo != unknown && (*nodo->params->begin())->where->tipo != unknown){
-															cout<<"Retorno inadecuado para el método "<<*padre->tokenName<<"\n"<<
-															"Retorno esperado: ";
-															printType(padre->tipo);
-															cout<<"\n";
-															cout<<"Retorno obtenido: ";
-															cout<<" en "<<*(*nodo->params->begin())->tokenName;
-															cout<<"\n";
-														}
-													}
-												} else {
-													if(padre->tipo != nodo->tipo && nodo->tipo != unknown){
-														cout<<"Retorno inadecuado para el método "<<*padre->tokenName<<"\n"<<
-														"Retorno esperado: ";
-														printType(padre->tipo);
-														cout<<"\n";
-														cout<<"Retorno obtenido: ";
-														printType(nodo->tipo);
-														cout<<" en "<<*nodo->tokenName;
-														cout<<"\n";
-													}
-												}
-										}
 			}
 		}
 	Nodo hijo = arbol.hijoMasIzq(nodo);
@@ -595,23 +440,18 @@ ________________________________________________________________________________
 
 %token <hilera> ID "identificador"
 %token <hilera> PYC ";"
-%token <hilera> FOR "para"
 %token <hilera> PARD ")"
-%token <hilera> CORD "]"
 %token <hilera> PARI "("
+%token <hilera> CORD "]"
 %token <hilera> CORI "["
 %token <hilera> IGUAL "="
 %token <hilera> COM ","
-%token <hilera> MAS "+"
 %token <hilera> MENOS "-"
 %token <hilera> ERROR
 %token <hilera> DOSP ":"
+%token <hilera> PUNTO "."
 %token <intVal> NUM "numero"
-%token <hilera> COMPARACION "comparador"
-%token <hilera> RET "ret"
 %token <hilera> PRINT "print"
-%token <hilera> INI "ini"
-%token <hilera> FIN "fin"
 
 %type <nodo> inicio
 %type <nodo> principal
@@ -619,81 +459,9 @@ ________________________________________________________________________________
 %type <nodo> declaraciones_examen
 %type <nodo> asignaciones_examen
 %type <nodo> tipos_examen
-//%type <nodo> metodo_definicion
 %type <nodo> metodo_llamado
 %type <params> metodo_argumentos
 %type <params> lista_parametros
-//%type <params> lista_ids
-/*
-
-%token <hilera> BOOL "verdadero o falso"
-
-%token <hilera> HILERA "Hilera"
-
-%token <hilera> INI "ini"
-%token <hilera> FIN "fin"
-%token <hilera> ENTRADA "entrada"
-%token <hilera> SALIDA "salida"
-%token <hilera> WHILE "mientras"
-%token <hilera> IF "si"
-%token <hilera> ELSE "sino"
-
-/*
-%token <hilera> HILERA "Hilera"
-%token <hilera> FOR "para"
-%token <hilera> WHILE "mientras"
-%token <hilera> IF "si"
-%token <hilera> ELSE "sino"
-%token <hilera> COMPARACION "comparador"
-%token <hilera> AND_OR "&& o ||"
-%token <hilera> BOOL "verdadero o falso"
-%token <intVal> NUM "numero"
-%token <hilera> INI "ini"
-%token <hilera> FIN "fin"
-%token <hilera> RET "ret"
-%token <hilera> MAS "+"
-%token <hilera> MENOS "-"
-%token <hilera> POR "*"
-%token <hilera> ENTRE "/"
-//%token <hilera> MOD "%"
-%token <hilera> ENTRADA "entrada"
-%token <hilera> SALIDA "salida"
-%token <hilera> ID "identificador"
-%token <hilera> ERROR
-%token <hilera> EJECUCION "principal"
-%token <hilera> PARD ")"
-%token <hilera> CORD "]"
-%token <hilera> PARI "("
-%token <hilera> CORI "["
-%token <hilera> IGUAL "="
-%token <hilera> DOSP ":"
-%token <hilera> COM ","
-%token <hilera> PYC ";"
-*/
-/*
-%type <nodo> declarations
-%type <nodo> assign
-%type <nodo> rule_IF
-%type <params> comparaciones;
-%type <nodo> instrucciones;
-%type <nodo> tipos
-%type <nodo> tipo_id
-%type <params> operaciones
-%type <nodo> rule_for
-%type <nodo> rule_While
-%type <nodo> rule_ELSE
-%type <nodo> ret
-%type <nodo> method_call
-%type <nodo> method
-%type <params> method_arguments
-%type <params> concat_IDs_operations
-%type <params> lista_ids
-%type <nodo> operando
-%type <hilera> OPERACIONES
-%type <params> comparacionesbooleanas
-%type <nodo> inicio
-%type <nodo> principal
-*/
 
 %%
 //This is where the fun begins.
@@ -735,82 +503,46 @@ inicio:
 	;
 	
 principal:
-	//mini_instruccion {$$ = $1;}
-	declaraciones_examen {$$ = $1;}
-	/*declaraciones_examen metodo_definicion principal
+	declaraciones_examen principal 
 	{
-		$2->HD = $3;
-		$3->HI = $2;
-		if($1 != nodoNulo){
-			Nodo i;
-			for(i = $1; i->HD != nodoNulo; i = i->HD){
-				//Iterates through the declaration Nodes.
-				//'til it finds the last one different to null.
-			}
-			$$ = $1;
-			i->HD = $2;
-			$2->HI = $$;
-		} else {
-			$$ = $2;
+		$$ = $1;
+		if($2 != nodoNulo){
+			$1->HD = $2;
 		}
 	}
-	| declaraciones_examen metodo_definicion
-	{
-		$$ = $2;
-		if($1 != nodoNulo){
-			Nodo i;
-			for(i = $1; i->HD != nodoNulo; i = i->HD){
-				//Iterates through the declaration Nodes.
-				//'til it finds the last one different to null.
-			}
-			i->HD = $$;
-			$$->HI = $1;
-			$$ = $1;
-		}
-	}*/
-	;
-	
-mini_instruccion:
-	asignaciones_examen {$$ = $1;}	
+	| declaraciones_examen {$$ = $1;}
 	;
 		
 declaraciones_examen:
-	asignaciones_examen PYC declaraciones_examen
+	asignaciones_examen PYC mini_instruccion
 	{
 		$$ = $1;
 		if($3 != nodoNulo){
 			$1->HD = $3;
 		}
 	}
-	| ID PYC declaraciones_examen
+	;
+	
+mini_instruccion:
+	PRINT ID PYC mini_instruccion 
 	{
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->addToTable = true;
-		if($3 != nodoNulo){
-			$$->HD = $3;
-			$3->HI = $$;
-		}
+		$$ = new Caja(cuenta++, $1,$4,NULL);
+		$$->params = new list<Caja*>();
+		Caja* temp = new Caja(cuenta++, $2,NULL,NULL);
+		temp->tipo = entero;		
+		$$->params->push_back(temp);
+		if($4 != nodoNulo)
+			$4->HI = $$;
 	}
-	| {$$ = nodoNulo;}
+	| PYC mini_instruccion
+	{
+		$$ = $2;
+	}
+	|{$$ = nodoNulo;}
 	;
 	
 asignaciones_examen:
-	ID IGUAL tipos_examen
-	{
-		$$ = new Caja(cuenta++, NULL, NULL, NULL);
-		$$->tokenName = new string("*asignacion*");
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->asignacion = new list<Caja*>();
-		$$->asignacion->push_front(temp);
-		temp = new Caja( cuenta++, $1, NULL, NULL );
-		temp->addToTable = true;
-		temp->tipo = $3->tipo;
-		$$->tipo = $3->tipo;
-		$$->asignacion->push_front(temp);
-		$$->asignacion->push_back($3);
-		// tipos se agrega desde su producción.
-	}
-	| ID IGUAL metodo_llamado  			/*1er Caso: ID = METODO*/
+	ID IGUAL metodo_llamado  			/*1er Caso: ID = METODO*/
 	{
 		$$ = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
@@ -924,73 +656,14 @@ asignaciones_examen:
 		temp->addToTable = true;
 		temp->tipo = $11->tipo; //podria ser entero de una vez
 		$$->asignacion->push_front(temp);
+		
+		/*if($11->params != 5){
+			printf("Semantic Error: c mamo: %d\n",$11->params);
+			semanticERROR = true;
+		}*/
 	}
 	;
 
-/*lista_ids:
-	ID
-	{
-		$$ = new list<Caja*>();
-		$1->addToTable = true;
-		$$->push_back($1);
-	}
-	| ID COM lista_ids
-	{
-		$$ = new list<Caja*>();
-		$1->addToTable = true;
-		$$->push_front($1);
-		arbol.mergeLists($$,$3);
-		delete $3;
-	}
-	;
-*/
-/*
-metodo_definicion:
-	INI metodo_llamado DOSP
-	mini_instruccion FIN
-	{
-		$$ = $2;
-		arbol.agregarNodosDeListaATabla($2->params, $$);
-		$$->addToTable = true;
-		if($4 != nodoNulo)
-			{$$->HMI = $4;}
-		for(Nodo tmp = $4; tmp != nodoNulo; tmp = tmp->HD){
-				tmp->padre = $$;
-				if(*tmp->tokenName == "*asignacion*"){
-					arbol.agregarNodosDeListaATabla(tmp->asignacion, $$);
-				}
-				if(tmp->addToTable){
-					arbol.agregarNodoATabla(tmp,$$);
-				}
-			}
-
-			if( pila.empty() == true )	// Si está vacío, el método no tiene returns.
-			{
-				$2->tipo = t_void;						// Le agrego al método
-			}
-			else
-			{
-				Caja* tmp = pila.top();	// El que está en el tope.
-				pila.pop();							// Me deshago de él.
-
-				// Me detengo hasta encontrar un tipo conocido o vaciar la pila.
-				while( tmp->tipo == unknown && pila.empty() == false )
-				{
-					tmp = pila.top();
-					pila.pop();
-				}
-				$2->tipo = tmp->tipo;					// Le agrego al método, si  todos fueron unknown, ese agrego.
-			}
-
-			// Vacío la pila para los otros.
-			while( pila.empty() == false )
-			{
-				pila.pop();
-			}
-	}
-	//| {$$ = nodoNulo;}
-	;
-*/
 metodo_llamado:
 	ID metodo_argumentos
 	{
@@ -1002,21 +675,12 @@ metodo_llamado:
 metodo_argumentos:
 	PARI lista_parametros PARD 
 	{
-		$$ = $2;
-		
+		$$ = $2;		
 	}
 	;			
 	
 lista_parametros:
-	/*tipos_examen COM lista_parametros
-	{
-		$$ = new list<Caja*>();
-		$1->addToTable = true;
-		$$->push_front($1);
-		arbol.mergeLists($$,$3);
-		delete $3;
-	}
-	|*/ tipos_examen
+	tipos_examen
 	{
 		$$ = new list<Caja*>();
 		$1->addToTable = true;
@@ -1033,221 +697,7 @@ lista_parametros:
 	;
 	
 tipos_examen:
-	/*ID 
-	{
-		$$ = new Caja(cuenta++, $1,NULL,NULL);
-		$$->tipo = entero;
-	}
-	| */NUM 
-	{
-		$$ = new Caja(cuenta++,NULL,NULL,NULL);
-		$$->tokenName = new string("*NULL*");
-		$$->tokenValue = $1;
-		$$->tipo = entero;
-	}
-	| MENOS NUM
-	{
-		int value = 0-$2;
-		$$ = new Caja(cuenta++,NULL,NULL,NULL);
-		$$->tokenName = new string("*NULL*");
-		$$->tokenValue = value;
-		$$->tipo = entero;
-	}
-	;
-	
-
-/*
-principal:
-	mini_instruccion
-	| declarations method principal
-	{
-		$2->HD = $3;
-		$3->HI = $2;
-		if($1 != nodoNulo){
-			Nodo i;
-			for(i = $1; i->HD != nodoNulo; i = i->HD){
-				//Iterates through the declaration Nodes.
-				//'til it finds the last one different to null.
-			}
-			$$ = $1;
-			i->HD = $2;
-			$2->HI = $$;
-		} else {
-			$$ = $2;
-		}
-	}
-	| declarations method
-	{
-		$$ = $2;
-		if($1 != nodoNulo){
-			Nodo i;
-			for(i = $1; i->HD != nodoNulo; i = i->HD){
-				//Iterates through the declaration Nodes.
-				//'til it finds the last one different to null.
-			}
-			i->HD = $$;
-			$$->HI = $1;
-			$$ = $1;
-		}
-	}
-	;
-	
-
-declarations:
-	assign PYC declarations
-	{
-		$$ = $1;
-		if($3 != nodoNulo){
-			$1->HD = $3;
-			$3->HI = $$;
-		}
-	}
-	| ID PYC declarations
-	{
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->addToTable = true;
-		if($3 != nodoNulo){
-			$$->HD = $3;
-			$3->HI = $$;
-		}
-	}
-	| {$$ = nodoNulo;}
-	;
-
-assign:
-	ID IGUAL tipos
-	{
-		$$ = new Caja(cuenta++, NULL, NULL, NULL);
-		$$->tokenName = new string("*asignacion*");
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->asignacion = new list<Caja*>();
-		$$->asignacion->push_front(temp);
-		temp = new Caja( cuenta++, $1, NULL, NULL );
-		temp->addToTable = true;
-		temp->tipo = $3->tipo;
-		$$->tipo = $3->tipo;
-		$$->asignacion->push_front(temp);
-		$$->asignacion->push_back($3);
-		// tipos se agrega desde su producción.
-		}
-	| ID IGUAL operaciones
-	{
-		$$ = new Caja(cuenta++, NULL, NULL, NULL);
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->tokenName = new string("*asignacion*");
-		$$->asignacion = $3;
-		$$->asignacion->push_front(temp);
-		temp = new Caja( cuenta++, $1, NULL, NULL );
-		temp->addToTable = true;
-		temp->tipo = entero;
-		list<Caja*>::iterator it = $3->begin();
-		$$->asignacion->push_front(temp);
-		$$->tipo = entero;
-	}
-	/*
-	| ID IGUAL method_call
-	{
-		$$ = new Caja(cuenta++, NULL, NULL, NULL);
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->tokenName = new string("*asignacion*");
-		$$->asignacion = new list<Caja*>();
-		$$->asignacion->push_back($3);
-		$$->asignacion->push_front(temp);
-		temp = new Caja( cuenta++, $1, NULL, NULL );
-		temp->addToTable = true;
-		temp->tipo = $3->tipo;
-		$$->asignacion->push_front(temp);
-	}
-	| ID COM ID IGUAL method_call
-	{
-		$$ = new Caja(cuenta++, NULL, NULL, NULL);
-		Caja* temp = new Caja( cuenta++, $4, NULL, NULL );
-		$$->tokenName = new string("*asignacion*");
-		$$->asignacion = new list<Caja*>();
-		$$->asignacion->push_back($5);
-		$$->asignacion->push_front(temp);
-		temp = new Caja( cuenta++, $3, NULL, NULL );
-		temp->addToTable = true;
-		temp->tipo = $5->tipo;
-		$$->asignacion->push_front(temp);
-	}
-	//| concat_IDs_operations IGUAL method_call
-	//| lista_ids IGUAL method_call
-	//| lista_ids IGUAL metodo_llamado
-	;
-	*/
-/*
-	
-
-concat_IDs_operations:
-	ID
-	{
-		$$ = new list<Caja*>();
-		$1->addToTable = true;
-		$$->push_back($1);
-	}
-	| ID COM concat_IDs_operations
-	{
-		$$ = new list<Caja*>();
-		$1->addToTable = true;
-		$$->push_front($1);
-		arbol.mergeLists($$,$3);
-		delete $3;
-	}
-	;
-		
-operaciones:
-	operaciones OPERACIONES operando
-	{
-		$$ = $1;
-
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->push_back(temp);
-
-		$$->push_back($3);
-		if($3->tipo == unknown){
-			$3->tipo = entero;
-		}
-	}
-	| operando OPERACIONES operando {
-		$$ = new list<Caja*>();
-
-		$$->push_back($1);
-
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->push_back(temp);
-
-		$$->push_back($3);
-		if($3->tipo == unknown){
-			$3->tipo = entero;
-		}
-		if($1->tipo == unknown){
-			$1->tipo = entero;
-		}
-	}
-	;
-
-tipos:
-	operando {$$ = $1;}
-	| BOOL
-	{
-		$$ = new Caja(cuenta++, $1,NULL,NULL);
-		$$->tipo = booleano;
-	}
-	| HILERA
-	{
-		$$ = new Caja(cuenta++, $1,NULL,NULL);
-		$$->tipo = hilera;
-	}
-	;
-
-operando:
-	ID
-	{
-		$$ = new Caja(cuenta++, $1,NULL,NULL);
-		$$->tipo = unknown;
-	}
-	| NUM
+	NUM 
 	{
 		$$ = new Caja(cuenta++,NULL,NULL,NULL);
 		$$->tokenName = new string("*NULL*");
@@ -1264,333 +714,6 @@ operando:
 	}
 	;
 
-instrucciones:
-	assign PYC instrucciones {
-		$$ = $1;
-		$$->HD = $3;
-		if($3 != nodoNulo)
-			$3->HI = $$;
-	}
-	| SALIDA DOSP tipos PYC instrucciones {
-		$$ = new Caja(cuenta++, $1,$5,NULL);
-		$$->params = new list<Caja*>();
-		$$->params->push_back($3);
-		if($5 != nodoNulo)
-			$5->HI = $$;
-	}
-	| rule_for instrucciones {
-		$$ = $1;
-		$$->HD = $2;
-		if($2 != nodoNulo)
-			$2->HI = $$;
-	}
-	| rule_ELSE instrucciones {
-		$$ = $1;
-		$$->HD->HD = $2;
-		if($2 != nodoNulo)
-			$2->HI = $$;
-	}
-	| rule_IF instrucciones {
-		$$ = $1;
-		$$->HD = $2;
-		if($2 != nodoNulo)
-			$2->HI = $$;
-	}
-	| rule_While instrucciones {
-		$$ = $1;
-		$$->HD = $2;
-		if($2 != nodoNulo)
-			$2->HI = $$;
-	}
-	| ENTRADA DOSP ID PYC instrucciones {
-		$$ = new Caja(cuenta++, $1,$5,NULL);
-		$$->params = new list<Caja*>();
-
-		Caja* temp = new Caja( cuenta++, $3, NULL, NULL );
-		$$->params->push_back(temp);
-		if($5 != nodoNulo)
-			$5->HI = $$;
-	}
-	| ret PYC instrucciones {
-		$$ = $1;
-		$$->HD = $3;
-		if($3 != nodoNulo)
-		{
-			$3->HI = $$;
-		}
-
-		pila.push($1);	// Guardo en pila el ret.
-	}
-	| PYC instrucciones {
-		$$ = $2;
-	}
-	| method_call PYC instrucciones {
-		$$ = $1;
-		$$->HD = $3;
-		if($3 != nodoNulo)
-			$3->HI = $$;
-	}
-	| ID PYC instrucciones
-	{
-		$$ = new Caja( cuenta++, $1, $3, NULL );
-		$$->addToTable = true;
-		$$->HD = $3;
-		if($3 != nodoNulo)
-			$3->HI = $$;
-		}
-	|{$$ = nodoNulo;}
-	;
-
-method:
-	INI method_call DOSP
-	instrucciones FIN
-	{
-		$$ = $2;
-		arbol.agregarNodosDeListaATabla($2->params, $$);
-		$$->addToTable = true;
-		if($4 != nodoNulo)
-			{$$->HMI = $4;}
-		for(Nodo tmp = $4; tmp != nodoNulo; tmp = tmp->HD){
-				tmp->padre = $$;
-				if(*tmp->tokenName == "*asignacion*"){
-					arbol.agregarNodosDeListaATabla(tmp->asignacion, $$);
-				}
-				if(tmp->addToTable){
-					arbol.agregarNodoATabla(tmp,$$);
-				}
-			}
-
-			if( pila.empty() == true )	// Si está vacío, el método no tiene returns.
-			{
-				$2->tipo = t_void;						// Le agrego al método
-			}
-			else
-			{
-				Caja* tmp = pila.top();	// El que está en el tope.
-				pila.pop();							// Me deshago de él.
-
-				// Me detengo hasta encontrar un tipo conocido o vaciar la pila.
-				while( tmp->tipo == unknown && pila.empty() == false )
-				{
-					tmp = pila.top();
-					pila.pop();
-				}
-				$2->tipo = tmp->tipo;					// Le agrego al método, si  todos fueron unknown, ese agrego.
-			}
-
-			// Vacío la pila para los otros.
-			while( pila.empty() == false )
-			{
-				pila.pop();
-			}
-	}
-	;
-
-method_call:
-	ID method_arguments
-	{
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->params = $2;
-	}
-	;
-
-method_arguments:
-	PARI concat_IDs_operations PARD {$$ = $2;}
-	| PARI PARD {$$ = NULL;}
-	;
-
-concat_IDs_operations:
-	tipos COM concat_IDs_operations
-	{
-		$$ = new list<Caja*>();
-		$1->addToTable = true;
-		$$->push_front($1);
-		arbol.mergeLists($$,$3);
-		delete $3;
-	}
-	/*
-	| operaciones COM concat_IDs_operations
-	{
-		$$ = new list<Caja*>();
-		arbol.mergeLists($3,$1);
-		arbol.mergeLists($$,$3);
-		delete $1;
-		delete $3;
-	}
-	| tipos
-	{
-		$$ = new list<Caja*>();
-		$1->addToTable = true;
-		$$->push_back($1);
-	}
-	/*
-	| operaciones
-	{
-		$$ = new list<Caja*>();
-		arbol.mergeLists($$,$1);
-	}
-	;			
-comparaciones:
-	comparacionesbooleanas AND_OR comparaciones {
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$1->push_back(temp);
-
-		arbol.mergeLists($1,$3);
-		$$ = $1;
-	}
-	| comparacionesbooleanas {$$ = $1;}
-	;
-
-comparacionesbooleanas:		// Devuelve listas.
-	tipos COMPARACION tipos
-	{
-		$$ = new list<Caja*>();
-
-		$$->push_back($1);
-
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->push_back(temp);
-
-		$$->push_back($3);
-	}
-	| tipos COMPARACION operaciones
-	{
-		$$ = new list<Caja*>();
-
-		$$->push_back($1);
-
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->push_back(temp);
-
-		arbol.mergeLists($$,$3);	// Ojo que operaciones devuelve una lista.
-	}
-	| operaciones COMPARACION tipos
-	{
-		$$ = $1;						// Obtengo la lista que devuele operaciones.
-
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->push_back(temp);
-
-		$1->push_back($3);
-	}
-	| operaciones COMPARACION operaciones
-	{
-		$$ = $1;
-
-		Caja* temp = new Caja( cuenta++, $2, NULL, NULL );
-		$$->push_back(temp);
-
-		arbol.mergeLists($$, $3);
-	}
-	;
-
-ret:
-	RET tipos {
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->params = new list<Caja*>();
-		$$->params->push_back($2);
-		if(*$2->tokenName != "*NULL*"){arbol.agregarNodoATabla($2,$$);};
-		$$->tipo = $2->tipo;
-	}
-	| RET operaciones {
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->operaciones = $2;
-		arbol.agregarNodosDeListaATabla($2,$$);
-		$$->tipo = entero;
-	}
-	| RET comparaciones {
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->comparacion = $2;
-		arbol.agregarNodosDeListaATabla($2,$$);
-		$$->tipo = booleano;
-	}
-	;
-
-rule_IF:
-	IF DOSP comparaciones PARI instrucciones PARD
-	{
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->comparacion = $3;
-		arbol.agregarNodosDeListaATabla($3,$$);
-		$$->HMI = $5;
-		for(Nodo tmp = $5; tmp != nodoNulo; tmp = tmp->HD){
-			tmp->padre = $$;
-			if(*tmp->tokenName == "*asignacion*"){
-				arbol.agregarNodosDeListaATabla(tmp->asignacion, $$);
-			}
-			if(tmp->addToTable){
-				arbol.agregarNodoATabla(tmp,$$);
-			}
-		}
-	}
-	;
-
-rule_ELSE:
-	rule_IF ELSE PARI instrucciones PARD
-	{
-		$$ = new Caja(cuenta++,$2,NULL,NULL);
-		$$->HMI = $4;
-		for(Nodo tmp = $4; tmp != nodoNulo; tmp = tmp->HD){
-			tmp->padre = $$;
-			if(*tmp->tokenName == "*asignacion*"){
-				arbol.agregarNodosDeListaATabla(tmp->asignacion, $$);
-			}
-			if(tmp->addToTable){
-				arbol.agregarNodoATabla(tmp,$$);
-			}
-		}
-		$1->HD = $$;
-		$$->HI = $1;
-		$$ = $1;
-	}
-	;
-
-rule_for:
-	FOR DOSP assign COM comparaciones COM operaciones PARI instrucciones PARD
-	{
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->asignacion = $3->asignacion;
-		arbol.agregarNodosDeListaATabla($3->asignacion,$$);
-		arbol.agregarNodosDeListaATabla($5,$$);
-		arbol.agregarNodosDeListaATabla($7,$$);
-		$$->comparacion = $5;
-		$$->operaciones = $7;
-		$$->HMI = $9;
-		for(Nodo tmp = $9; tmp != nodoNulo; tmp = tmp->HD){
-			tmp->padre = $$;
-			if(*tmp->tokenName == "*asignacion*"){
-				arbol.agregarNodosDeListaATabla(tmp->asignacion, $$);
-			}
-			if(tmp->addToTable){
-				arbol.agregarNodoATabla(tmp,$$);
-			}
-		}
-	}
-	;
-
-rule_While:
-	WHILE DOSP comparaciones PARI instrucciones PARD {
-		$$ = new Caja(cuenta++,$1,NULL,NULL);
-		$$->comparacion = $3;
-		arbol.agregarNodosDeListaATabla($3,$$);
-		$$->HMI = $5;
-		for(Nodo tmp = $5; tmp != nodoNulo; tmp = tmp->HD){
-			tmp->padre = $$;
-			if(*tmp->tokenName == "*asignacion*"){
-				arbol.agregarNodosDeListaATabla(tmp->asignacion, $$);
-			}
-			if(tmp->addToTable){
-				arbol.agregarNodoATabla(tmp,$$);
-			}
-		}
-	}
-	;
-	
-OPERACIONES:
-	MAS {$$ = $1;}
-	| MENOS {$$ = $1;}
-	;	
-*/
 //This is where we end our suffering.
 %%
 int main(int argc, char** argv) {

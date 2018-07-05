@@ -41,7 +41,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2058 of yacc.c  */
-#line 583 "gramaticas.cpp"
+#line 428 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
@@ -59,23 +59,18 @@ extern int yydebug;
    enum yytokentype {
      ID = 258,
      PYC = 259,
-     FOR = 260,
-     PARD = 261,
+     PARD = 260,
+     PARI = 261,
      CORD = 262,
-     PARI = 263,
-     CORI = 264,
-     IGUAL = 265,
-     COM = 266,
-     MAS = 267,
-     MENOS = 268,
-     ERROR = 269,
-     DOSP = 270,
-     NUM = 271,
-     COMPARACION = 272,
-     RET = 273,
-     PRINT = 274,
-     INI = 275,
-     FIN = 276
+     CORI = 263,
+     IGUAL = 264,
+     COM = 265,
+     MENOS = 266,
+     ERROR = 267,
+     DOSP = 268,
+     PUNTO = 269,
+     NUM = 270,
+     PRINT = 271
    };
 #endif
 
@@ -84,7 +79,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 588 "gramaticas.cpp"
+#line 433 "gramaticas.cpp"
 
 	string* hilera;
 	int intVal;
@@ -94,7 +89,7 @@ typedef union YYSTYPE
 
 
 /* Line 2058 of yacc.c  */
-#line 98 "gramaticas.tab.h"
+#line 93 "gramaticas.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

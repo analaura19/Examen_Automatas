@@ -1,3 +1,5 @@
-t;
-r = 4;
-x,f,j,e,m = metodo(2);
+x,f,j,e,o = metodo(2);
+print x;
+print a;
+print e;
+print z;

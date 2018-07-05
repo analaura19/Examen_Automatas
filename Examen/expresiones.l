@@ -11,35 +11,6 @@ extern void printError(std::string, char);
 %option noyywrap
 
 %%
-(\s)+|(\t)+|(\n)+|(\R)+ {
-		/*Whitespaces ignored*/;
-	}
-(\/\*)((.|\s|\n)*)?(\*\/) {
- 		/*Block comments ignored*/;
- 	}
-(\/\/)((.|\n\r)*)? {
- 		/*In-line comments ignored*/;
- 	}
-para	{
-		yylval.hilera = new std::string(yytext,yyleng);
- 		return FOR;
- 	}
-==|<=|>=|>|<	{
-		yylval.hilera = new std::string(yytext,yyleng);
- 		return COMPARACION;
- 	}
-ini {
-		yylval.hilera = new std::string(yytext,yyleng);
- 		return INI;
- 	}
-fin {
-		yylval.hilera = new std::string(yytext,yyleng);
- 		return FIN;
- 	}
-ret {
-		yylval.hilera = new std::string(yytext,yyleng);
- 		return RET;
- 	}
 print 	{
 		yylval.hilera = new std::string(yytext,yyleng);
  		return PRINT;
@@ -76,6 +47,10 @@ print 	{
 		yylval.hilera = new std::string(yytext,yyleng);
 		return COM;
 	}
+\.	{
+		yylval.hilera = new std::string(yytext,yyleng);
+		return PUNTO;
+	}
 [a-zñ][a-zA-Z0-9_ñ]*	{
 		yylval.hilera = new std::string(yytext,yyleng);
  		return ID;
@@ -83,10 +58,6 @@ print 	{
 [0-9]+ {
 		yylval.intVal = atoi(yytext);
  		return NUM;
- 	}
-[\+] {
-		yylval.hilera = new std::string(yytext,yyleng);
- 		return MAS;
  	}
 [\-] {
 		yylval.hilera = new std::string(yytext,yyleng);

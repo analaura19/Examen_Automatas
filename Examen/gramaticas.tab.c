@@ -148,31 +148,10 @@ void listPreORecur(Arbol& arbol, Nodo nodo, int cantidad_tabs)
 		}
 		parametros = false;
 	}
-
-	if(nodo->array != 0x0){
-		if(nodo->array->size() != 0){
-			cout<<" Tamaño Arreglo: ";
-			printList(nodo->array);
-		}
-		parametros = false;
-	}
-
 	if(nodo->asignacion != 0x0){
 		if(nodo->asignacion->size() != 0){
 			cout<<" Asignacion: ";
 			printList(nodo->asignacion);
-		}
-	}
-	if(nodo->comparacion != 0x0){
-		if(nodo->comparacion->size() != 0){
-			cout<<" Comparacion: ";
-			printList(nodo->comparacion);
-		}
-	}
-	if(nodo->operaciones != 0x0){
-		if(nodo->operaciones->size() != 0){
-			cout<<" Operaciones: ";
-			printList(nodo->operaciones);
 		}
 	}
 	cout<<"\n";
@@ -213,8 +192,8 @@ ________________________________________________________________________________
 bool caracterEspecial(string* tokenName){
 		if(*tokenName == "+" || *tokenName == "-" || *tokenName == "/" || *tokenName == "*" || *tokenName == "%" ||
 			 *tokenName == "==" || *tokenName == ">" || *tokenName == "<" || *tokenName == "<=" || *tokenName == ">=" ||
-			 *tokenName == "||" || *tokenName == "&&" || *tokenName == "=" || *tokenName == "*NULL*" || (*tokenName)[0] == '\"'
-		 || *tokenName == "verdadero" || *tokenName == "falso" || *tokenName == "nulo"){
+			 *tokenName == "||" || *tokenName == "&&" || *tokenName == "=" || *tokenName == "*NULL*" || (*tokenName)[0] == '\"'|| 
+			 *tokenName == "nulo"){
 			 return true;
 		 }
 		return false;
@@ -303,11 +282,11 @@ bool nodoEnTabla(Nodo nodo){
 			}
 		}
 	}
-	/*
+	
 	if(!encontrado){
-		cout<<"Token: "<< *nodo->tokenName<<" no ha sido declarado en este scope.\n";
+		cout<<"Semantic Error -> Token: "<< *nodo->tokenName<<" no ha sido declarado en este scope.\n";
 		semanticERROR = true;
-	}*/
+	}
 	return encontrado;
 }
 
@@ -434,21 +413,6 @@ void buscarEnTablaListasDeNodos(Nodo nodo){
 				validezDeComparaciones(nodo->comparacion);
 			}
 		}
-
-		if(nodo->operaciones != 0x0){
-			if(nodo->operaciones->size() != 0){
-				list<Nodo>::iterator it = nodo->operaciones->begin();
-					while(it != nodo->operaciones->end()){
-						if(!caracterEspecial((*it)->tokenName)){
-							operaciones = true;
-							nodoEnTabla(*it);
-							operaciones = false;
-						}
-						it++;
-					}
-				}
-		}
-
 		if(nodo->asignacion != 0x0){
 			if(nodo->asignacion->size() != 0){
 				list<Nodo>::iterator it = nodo->asignacion->begin();
@@ -462,23 +426,6 @@ void buscarEnTablaListasDeNodos(Nodo nodo){
 					}
 				}
 			}
-
-			if(nodo->array != 0x0){
-				if(nodo->array->size() != 0){
-					list<Nodo>::iterator it = nodo->array->begin();
-						it++;
-						it++;
-						while(it != nodo->array->end()){
-							if(!caracterEspecial((*it)->tokenName)){
-								operaciones = true;
-								nodoEnTabla(*it);
-								operaciones = false;
-							}
-							it++;
-						}
-					}
-				}
-
 }
 
 void printType(type tipo){
@@ -496,10 +443,7 @@ void semanticAnalisisPreORecur(Arbol& arbol, Nodo nodo, int nivel)
 {
 	if(nivel > 0){
 		if(*nodo->tokenName != "*NULL*"){
-			if(*nodo->tokenName != "si" && *nodo->tokenName != "sino" &&
-					*nodo->tokenName != "entrada" && *nodo->tokenName != "salida" &&
-					*nodo->tokenName != "para" && *nodo->tokenName != "mientras" &&
-					*nodo->tokenName != "*asignacion*" && *nodo->tokenName != "ret")
+			if(*nodo->tokenName != "print" && *nodo->tokenName != "*asignacion*")
 					{
 						nodoEnTabla(nodo);
 					}
@@ -514,105 +458,6 @@ void semanticAnalisisPreORecur(Arbol& arbol, Nodo nodo, int nivel)
 									}
 								}
 							}
-
-							if(nodo->comparacion != 0x0){
-								if(nodo->comparacion->size() != 0){
-									list<Nodo>::iterator it = nodo->comparacion->begin();
-										while(it != nodo->comparacion->end()){
-											if(!caracterEspecial((*it)->tokenName)){
-												nodoEnTabla(*it);
-												buscarEnTablaListasDeNodos(*it);
-											}
-											it++;
-										}
-										validezDeComparaciones(nodo->comparacion);
-									}
-								}
-
-								if(nodo->operaciones != 0x0){
-									if(nodo->operaciones->size() != 0){
-										list<Nodo>::iterator it = nodo->operaciones->begin();
-											while(it != nodo->operaciones->end()){
-												if(!caracterEspecial((*it)->tokenName)){
-													operaciones = true;
-													nodoEnTabla(*it);
-												  operaciones = false;
-													buscarEnTablaListasDeNodos(*it);
-												}
-												it++;
-											}
-										}
-								}
-
-								if(nodo->asignacion != 0x0){
-									if(nodo->asignacion->size() != 0){
-										list<Nodo>::iterator it = nodo->asignacion->begin();
-											it++;
-											it++;
-											while(it != nodo->asignacion->end()){
-												if(!caracterEspecial((*it)->tokenName)){
-													nodoEnTabla(*it);
-													buscarEnTablaListasDeNodos(*it);
-												}
-												it++;
-											}
-										}
-									}
-
-									if(nodo->array != 0x0){
-										if(nodo->array->size() != 0){
-											list<Nodo>::iterator it = nodo->array->begin();
-												it++;
-												it++;
-												while(it != nodo->array->end()){
-													if(!caracterEspecial((*it)->tokenName)){
-														operaciones = true;
-														nodoEnTabla(*it);
-														operaciones = false;
-														buscarEnTablaListasDeNodos(*it);
-													}
-													it++;
-												}
-											}
-										}
-
-										//Se verifica que el valor de retorno sea real.
-										if(*nodo->tokenName == "ret"){
-												Nodo padre = retType(nodo);
-												if(padre->where->tipo == unknown){//Actualiza el tipo del método.
-													if(nodo->tipo != unknown){
-														padre->tipo = nodo->tipo;
-														padre->where->tipo = nodo->tipo;
-													} else {
-														padre->tipo = (*nodo->params->begin())->where->tipo;
-														padre->where->tipo = (*nodo->params->begin())->where->tipo;
-													}
-												}
-											if(nodo->tipo == unknown){//When a variable is being returned.
-												if((*nodo->params->begin())->where != 0x0){//If the symbol exists in the table.
-													if(padre->tipo != (*nodo->params->begin())->where->tipo && padre->tipo != unknown && (*nodo->params->begin())->where->tipo != unknown){
-															cout<<"Retorno inadecuado para el método "<<*padre->tokenName<<"\n"<<
-															"Retorno esperado: ";
-															printType(padre->tipo);
-															cout<<"\n";
-															cout<<"Retorno obtenido: ";
-															cout<<" en "<<*(*nodo->params->begin())->tokenName;
-															cout<<"\n";
-														}
-													}
-												} else {
-													if(padre->tipo != nodo->tipo && nodo->tipo != unknown){
-														cout<<"Retorno inadecuado para el método "<<*padre->tokenName<<"\n"<<
-														"Retorno esperado: ";
-														printType(padre->tipo);
-														cout<<"\n";
-														cout<<"Retorno obtenido: ";
-														printType(nodo->tipo);
-														cout<<" en "<<*nodo->tokenName;
-														cout<<"\n";
-													}
-												}
-										}
 			}
 		}
 	Nodo hijo = arbol.hijoMasIzq(nodo);
@@ -645,7 +490,7 @@ ________________________________________________________________________________
 
 
 /* Line 371 of yacc.c  */
-#line 649 "gramaticas.tab.c"
+#line 494 "gramaticas.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -676,7 +521,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
-#line 583 "gramaticas.cpp"
+#line 428 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
@@ -684,7 +529,7 @@ extern int yydebug;
 
 
 /* Line 387 of yacc.c  */
-#line 688 "gramaticas.tab.c"
+#line 533 "gramaticas.tab.c"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -694,23 +539,18 @@ extern int yydebug;
    enum yytokentype {
      ID = 258,
      PYC = 259,
-     FOR = 260,
-     PARD = 261,
+     PARD = 260,
+     PARI = 261,
      CORD = 262,
-     PARI = 263,
-     CORI = 264,
-     IGUAL = 265,
-     COM = 266,
-     MAS = 267,
-     MENOS = 268,
-     ERROR = 269,
-     DOSP = 270,
-     NUM = 271,
-     COMPARACION = 272,
-     RET = 273,
-     PRINT = 274,
-     INI = 275,
-     FIN = 276
+     CORI = 263,
+     IGUAL = 264,
+     COM = 265,
+     MENOS = 266,
+     ERROR = 267,
+     DOSP = 268,
+     PUNTO = 269,
+     NUM = 270,
+     PRINT = 271
    };
 #endif
 
@@ -719,7 +559,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 588 "gramaticas.cpp"
+#line 433 "gramaticas.cpp"
 
 	string* hilera;
 	int intVal;
@@ -729,7 +569,7 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 733 "gramaticas.tab.c"
+#line 573 "gramaticas.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -757,7 +597,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 761 "gramaticas.tab.c"
+#line 601 "gramaticas.tab.c"
 
 #ifdef short
 # undef short
@@ -975,22 +815,22 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  10
+#define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   33
+#define YYLAST   35
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  22
+#define YYNTOKENS  17
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  10
+#define YYNNTS  11
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  18
+#define YYNRULES  19
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  40
+#define YYNSTATES  44
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   276
+#define YYMAXUTOK   271
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -1025,7 +865,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21
+      15,    16
 };
 
 #if YYDEBUG
@@ -1033,28 +873,28 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     7,     9,    13,    17,    18,    22,
-      26,    32,    40,    50,    62,    65,    69,    71,    73
+       0,     0,     3,     5,     7,    10,    12,    16,    21,    24,
+      25,    29,    35,    43,    53,    65,    68,    72,    74,    76
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      23,     0,    -1,    24,    -1,    25,    -1,    26,    -1,    27,
-       4,    26,    -1,     3,     4,    26,    -1,    -1,     3,    10,
-      31,    -1,     3,    10,    28,    -1,     3,    11,     3,    10,
-      28,    -1,     3,    11,     3,    11,     3,    10,    28,    -1,
-       3,    11,     3,    11,     3,    11,     3,    10,    28,    -1,
-       3,    11,     3,    11,     3,    11,     3,    11,     3,    10,
-      28,    -1,     3,    29,    -1,     8,    30,     6,    -1,    31,
-      -1,    16,    -1,    13,    16,    -1
+      18,     0,    -1,    19,    -1,    20,    -1,    21,    20,    -1,
+      21,    -1,    23,     4,    22,    -1,    16,     3,     4,    22,
+      -1,     4,    22,    -1,    -1,     3,     9,    24,    -1,     3,
+      10,     3,     9,    24,    -1,     3,    10,     3,    10,     3,
+       9,    24,    -1,     3,    10,     3,    10,     3,    10,     3,
+       9,    24,    -1,     3,    10,     3,    10,     3,    10,     3,
+      10,     3,     9,    24,    -1,     3,    25,    -1,     6,    26,
+       5,    -1,    27,    -1,    15,    -1,    11,    15,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   702,   702,   734,   739,   778,   785,   794,   798,   813,
-     826,   844,   867,   895,   995,  1003,  1019,  1041,  1048
+       0,   470,   470,   502,   506,   513,   517,   527,   537,   541,
+     545,   558,   576,   599,   627,   668,   676,   683,   700,   707
 };
 #endif
 
@@ -1063,12 +903,12 @@ static const yytype_uint16 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "\"identificador\"", "\";\"", "\"para\"",
-  "\")\"", "\"]\"", "\"(\"", "\"[\"", "\"=\"", "\",\"", "\"+\"", "\"-\"",
-  "ERROR", "\":\"", "\"numero\"", "\"comparador\"", "\"ret\"", "\"print\"",
-  "\"ini\"", "\"fin\"", "$accept", "super", "inicio", "principal",
-  "declaraciones_examen", "asignaciones_examen", "metodo_llamado",
-  "metodo_argumentos", "lista_parametros", "tipos_examen", YY_NULL
+  "$end", "error", "$undefined", "\"identificador\"", "\";\"", "\")\"",
+  "\"(\"", "\"]\"", "\"[\"", "\"=\"", "\",\"", "\"-\"", "ERROR", "\":\"",
+  "\".\"", "\"numero\"", "\"print\"", "$accept", "super", "inicio",
+  "principal", "declaraciones_examen", "mini_instruccion",
+  "asignaciones_examen", "metodo_llamado", "metodo_argumentos",
+  "lista_parametros", "tipos_examen", YY_NULL
 };
 #endif
 
@@ -1078,23 +918,22 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276
+     265,   266,   267,   268,   269,   270,   271
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    22,    23,    24,    25,    26,    26,    26,    27,    27,
-      27,    27,    27,    27,    28,    29,    30,    31,    31
+       0,    17,    18,    19,    20,    20,    21,    22,    22,    22,
+      23,    23,    23,    23,    23,    24,    25,    26,    27,    27
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     1,     3,     3,     0,     3,     3,
-       5,     7,     9,    11,     2,     3,     1,     1,     2
+       0,     2,     1,     1,     2,     1,     3,     4,     2,     0,
+       3,     5,     7,     9,    11,     2,     3,     1,     1,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -1102,33 +941,37 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       7,     0,     0,     2,     3,     4,     0,     7,     0,     0,
-       1,     7,     6,     0,     0,    17,     9,     8,     0,     5,
-       0,    14,    18,     0,     0,     0,    16,    10,     0,    15,
-       0,     0,    11,     0,     0,     0,    12,     0,     0,    13
+       0,     0,     0,     2,     3,     5,     0,     0,     0,     1,
+       4,     9,     0,    10,     0,     9,     0,     6,     0,    15,
+       0,     0,     8,     0,     0,    18,     0,    17,    11,     0,
+       9,    19,    16,     0,     0,     7,    12,     0,     0,     0,
+      13,     0,     0,    14
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,     4,     5,     6,    16,    21,    25,    17
+      -1,     2,     3,     4,     5,    17,     6,    13,    19,    26,
+      27
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -24
+#define YYPACT_NINF -21
 static const yytype_int8 yypact[] =
 {
-       3,    -2,     4,   -24,   -24,   -24,     6,     3,     0,     9,
-     -24,     3,   -24,    16,    11,   -24,   -24,   -24,     8,   -24,
-       1,   -24,   -24,    22,    23,    24,   -24,   -24,    10,   -24,
-      22,    25,   -24,    12,    22,    26,   -24,    21,    22,   -24
+       3,    -5,    12,   -21,   -21,     3,    11,    14,    18,   -21,
+     -21,    -2,    17,   -21,    -1,    -2,    21,   -21,    -8,   -21,
+      14,    22,   -21,    23,    13,   -21,    24,   -21,   -21,     1,
+      -2,   -21,   -21,    14,    27,   -21,   -21,    10,    14,    28,
+     -21,    25,    14,   -21
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -24,   -24,   -24,   -24,    -6,   -24,   -23,   -24,   -24,    13
+     -21,   -21,   -21,    30,   -21,   -14,   -21,   -20,   -21,   -21,
+     -21
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -1137,34 +980,35 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      27,    12,     7,    13,    10,    19,     1,    32,     8,     9,
-      11,    36,    18,    14,    14,    39,    15,    15,    23,    24,
-      30,    31,    34,    35,    20,    13,    28,    22,    33,    37,
-      29,    38,     0,    26
+      28,    22,    15,    24,     7,     8,     1,    25,    20,    21,
+      33,    34,     9,    36,    16,    11,    35,    12,    40,    38,
+      39,    14,    43,    18,    23,    29,     0,    30,    31,    32,
+      37,    41,     0,     0,    42,    10
 };
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-24)))
+  (!!((Yystate) == (-21)))
 
 #define yytable_value_is_error(Yytable_value) \
   YYID (0)
 
 static const yytype_int8 yycheck[] =
 {
-      23,     7,     4,     3,     0,    11,     3,    30,    10,    11,
-       4,    34,     3,    13,    13,    38,    16,    16,    10,    11,
-      10,    11,    10,    11,     8,     3,     3,    16,     3,     3,
-       6,    10,    -1,    20
+      20,    15,     4,    11,     9,    10,     3,    15,     9,    10,
+       9,    10,     0,    33,    16,     4,    30,     3,    38,     9,
+      10,     3,    42,     6,     3,     3,    -1,     4,    15,     5,
+       3,     3,    -1,    -1,     9,     5
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,    23,    24,    25,    26,    27,     4,    10,    11,
-       0,     4,    26,     3,    13,    16,    28,    31,     3,    26,
-       8,    29,    16,    10,    11,    30,    31,    28,     3,     6,
-      10,    11,    28,     3,    10,    11,    28,     3,    10,    28
+       0,     3,    18,    19,    20,    21,    23,     9,    10,     0,
+      20,     4,     3,    24,     3,     4,    16,    22,     6,    25,
+       9,    10,    22,     3,    11,    15,    26,    27,    24,     3,
+       4,    15,     5,     9,    10,    22,    24,     3,     9,    10,
+      24,     3,     9,    24
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1966,7 +1810,7 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 703 "gramaticas.cpp"
+#line 471 "gramaticas.cpp"
     {
 	  string* root = new std::string("Programa:");
 		arbol.ponerRaiz(cuenta,root);
@@ -1999,19 +1843,30 @@ yyreduce:
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 734 "gramaticas.cpp"
+#line 502 "gramaticas.cpp"
     {(yyval.nodo) = (yyvsp[(1) - (1)].nodo);}
     break;
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 739 "gramaticas.cpp"
-    {(yyval.nodo) = (yyvsp[(1) - (1)].nodo);}
+#line 507 "gramaticas.cpp"
+    {
+		(yyval.nodo) = (yyvsp[(1) - (2)].nodo);
+		if((yyvsp[(2) - (2)].nodo) != nodoNulo){
+			(yyvsp[(1) - (2)].nodo)->HD = (yyvsp[(2) - (2)].nodo);
+		}
+	}
     break;
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 779 "gramaticas.cpp"
+#line 513 "gramaticas.cpp"
+    {(yyval.nodo) = (yyvsp[(1) - (1)].nodo);}
+    break;
+
+  case 6:
+/* Line 1792 of yacc.c  */
+#line 518 "gramaticas.cpp"
     {
 		(yyval.nodo) = (yyvsp[(1) - (3)].nodo);
 		if((yyvsp[(3) - (3)].nodo) != nodoNulo){
@@ -2020,47 +1875,37 @@ yyreduce:
 	}
     break;
 
-  case 6:
-/* Line 1792 of yacc.c  */
-#line 786 "gramaticas.cpp"
-    {
-		(yyval.nodo) = new Caja(cuenta++,(yyvsp[(1) - (3)].hilera),NULL,NULL);
-		(yyval.nodo)->addToTable = true;
-		if((yyvsp[(3) - (3)].nodo) != nodoNulo){
-			(yyval.nodo)->HD = (yyvsp[(3) - (3)].nodo);
-			(yyvsp[(3) - (3)].nodo)->HI = (yyval.nodo);
-		}
-	}
-    break;
-
   case 7:
 /* Line 1792 of yacc.c  */
-#line 794 "gramaticas.cpp"
-    {(yyval.nodo) = nodoNulo;}
+#line 528 "gramaticas.cpp"
+    {
+		(yyval.nodo) = new Caja(cuenta++, (yyvsp[(1) - (4)].hilera),(yyvsp[(4) - (4)].nodo),NULL);
+		(yyval.nodo)->params = new list<Caja*>();
+		Caja* temp = new Caja(cuenta++, (yyvsp[(2) - (4)].hilera),NULL,NULL);
+		temp->tipo = entero;		
+		(yyval.nodo)->params->push_back(temp);
+		if((yyvsp[(4) - (4)].nodo) != nodoNulo)
+			(yyvsp[(4) - (4)].nodo)->HI = (yyval.nodo);
+	}
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 799 "gramaticas.cpp"
+#line 538 "gramaticas.cpp"
     {
-		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
-		(yyval.nodo)->tokenName = new string("*asignacion*");
-		Caja* temp = new Caja( cuenta++, (yyvsp[(2) - (3)].hilera), NULL, NULL );
-		(yyval.nodo)->asignacion = new list<Caja*>();
-		(yyval.nodo)->asignacion->push_front(temp);
-		temp = new Caja( cuenta++, (yyvsp[(1) - (3)].hilera), NULL, NULL );
-		temp->addToTable = true;
-		temp->tipo = (yyvsp[(3) - (3)].nodo)->tipo;
-		(yyval.nodo)->tipo = (yyvsp[(3) - (3)].nodo)->tipo;
-		(yyval.nodo)->asignacion->push_front(temp);
-		(yyval.nodo)->asignacion->push_back((yyvsp[(3) - (3)].nodo));
-		// tipos se agrega desde su producción.
+		(yyval.nodo) = (yyvsp[(2) - (2)].nodo);
 	}
     break;
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 814 "gramaticas.cpp"
+#line 541 "gramaticas.cpp"
+    {(yyval.nodo) = nodoNulo;}
+    break;
+
+  case 10:
+/* Line 1792 of yacc.c  */
+#line 546 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(2) - (3)].hilera), NULL, NULL );
@@ -2075,9 +1920,9 @@ yyreduce:
 	}
     break;
 
-  case 10:
+  case 11:
 /* Line 1792 of yacc.c  */
-#line 827 "gramaticas.cpp"
+#line 559 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(4) - (5)].hilera), NULL, NULL );
@@ -2097,9 +1942,9 @@ yyreduce:
 	}
     break;
 
-  case 11:
+  case 12:
 /* Line 1792 of yacc.c  */
-#line 845 "gramaticas.cpp"
+#line 577 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(6) - (7)].hilera), NULL, NULL );
@@ -2124,9 +1969,9 @@ yyreduce:
 	}
     break;
 
-  case 12:
+  case 13:
 /* Line 1792 of yacc.c  */
-#line 868 "gramaticas.cpp"
+#line 600 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(8) - (9)].hilera), NULL, NULL );
@@ -2156,9 +2001,9 @@ yyreduce:
 	}
     break;
 
-  case 13:
+  case 14:
 /* Line 1792 of yacc.c  */
-#line 896 "gramaticas.cpp"
+#line 628 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++, NULL, NULL, NULL);
 		Caja* temp = new Caja( cuenta++, (yyvsp[(10) - (11)].hilera), NULL, NULL );
@@ -2190,30 +2035,34 @@ yyreduce:
 		temp->addToTable = true;
 		temp->tipo = (yyvsp[(11) - (11)].nodo)->tipo; //podria ser entero de una vez
 		(yyval.nodo)->asignacion->push_front(temp);
+		
+		/*if($11->params != 5){
+			printf("Semantic Error: c mamo: %d\n",$11->params);
+			semanticERROR = true;
+		}*/
 	}
     break;
 
-  case 14:
+  case 15:
 /* Line 1792 of yacc.c  */
-#line 996 "gramaticas.cpp"
+#line 669 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++,(yyvsp[(1) - (2)].hilera),NULL,NULL);
 		(yyval.nodo)->params = (yyvsp[(2) - (2)].params);
 	}
     break;
 
-  case 15:
+  case 16:
 /* Line 1792 of yacc.c  */
-#line 1004 "gramaticas.cpp"
+#line 677 "gramaticas.cpp"
     {
-		(yyval.params) = (yyvsp[(2) - (3)].params);
-		
+		(yyval.params) = (yyvsp[(2) - (3)].params);		
 	}
     break;
 
-  case 16:
+  case 17:
 /* Line 1792 of yacc.c  */
-#line 1020 "gramaticas.cpp"
+#line 684 "gramaticas.cpp"
     {
 		(yyval.params) = new list<Caja*>();
 		(yyvsp[(1) - (1)].nodo)->addToTable = true;
@@ -2229,9 +2078,9 @@ yyreduce:
 	}
     break;
 
-  case 17:
+  case 18:
 /* Line 1792 of yacc.c  */
-#line 1042 "gramaticas.cpp"
+#line 701 "gramaticas.cpp"
     {
 		(yyval.nodo) = new Caja(cuenta++,NULL,NULL,NULL);
 		(yyval.nodo)->tokenName = new string("*NULL*");
@@ -2240,9 +2089,9 @@ yyreduce:
 	}
     break;
 
-  case 18:
+  case 19:
 /* Line 1792 of yacc.c  */
-#line 1049 "gramaticas.cpp"
+#line 708 "gramaticas.cpp"
     {
 		int value = 0-(yyvsp[(2) - (2)].intVal);
 		(yyval.nodo) = new Caja(cuenta++,NULL,NULL,NULL);
@@ -2254,7 +2103,7 @@ yyreduce:
 
 
 /* Line 1792 of yacc.c  */
-#line 2258 "gramaticas.tab.c"
+#line 2107 "gramaticas.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2486,7 +2335,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 1595 "gramaticas.cpp"
+#line 718 "gramaticas.cpp"
 
 int main(int argc, char** argv) {
 	if(argc > 1){
